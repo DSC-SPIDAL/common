@@ -44,6 +44,7 @@ public class BinaryReader2D {
         int rowCount = rows.getLength();
         short[][] weights = new short[rowCount][];
         for (int i = 0; i < rowCount; ++i){
+            weights[i] = new short[globalColCount];
             for (int j = 0; j < globalColCount; ++j){
                 weights[i][j] = ((short)(w * Short.MAX_VALUE));
             }
