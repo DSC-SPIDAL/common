@@ -93,7 +93,7 @@ public class MatrixUtils {
     }
 
     public static double[][] matrixMultiplyWithThreadOffset(
-        short[][] A, double[] Adiag, double[][] B,
+        short[][] distances, double distanceMultiply, double distanceTransform, boolean isSammon, short[][] weights, double weightsMultiply, double avgDist, double[] Adiag, double[][] B,
         int aHeight, int bWidth, int comm, int bz, int threadRowOffset, int rowOffset) {
         double[][] C = new double[aHeight][bWidth];
 
@@ -146,7 +146,15 @@ public class MatrixUtils {
                                 }
                                 else {
                                     //reverse the value from weight
-                                    aVal = -(A[i+threadRowOffset][k] * 1.0 / Short.MAX_VALUE);
+                                    double origD = distances[i+threadRowOffset][k] * distanceMultiply;
+                                    double weight = weights[i+threadRowOffset][k] * weightsMultiply;
+                                    if (origD < 0 || weight == 0){
+                                        aVal = 0.0;
+                                    } else {
+                                        origD = distanceTransform != 1.0 ? Math.pow(origD, distanceTransform) : origD;
+                                        weight = isSammon ? (weight /Math.max(origD,0.001 *avgDist)) : weight;
+                                        aVal = -weight;
+                                    }
                                 }
 
                                 if (aVal != 0 && B[k][j] != 0) {
