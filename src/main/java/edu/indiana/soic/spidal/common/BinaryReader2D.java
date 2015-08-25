@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class BinaryReader2D {
-    public static short[][] readRowRange(String fname, Range rows, int globalColCount, ByteOrder endianness){
+    public static short[][] readRowRange(String fname, Range rows, int globalColCount, ByteOrder endianness, boolean divideByShortMax, double transform){
         try (FileChannel fc = (FileChannel) Files
             .newByteChannel(Paths.get(fname), StandardOpenOption.READ)) {
             int dataTypeSize = Short.BYTES;
@@ -22,13 +22,19 @@ public class BinaryReader2D {
 
             int rowCount = rows.getLength();
             short[][] rowBlock = new short[rowCount][];
+            double tmp;
             for (int i = 0; i < rowCount; ++i){
-                rowBlock[i] = new short[globalColCount];
-                short [] rowBlockRow = rowBlock[i];
+                short [] rowBlockRow = rowBlock[i] = new short[globalColCount];;
                 for (int j = 0; j < globalColCount; ++j){
                     int procLocalPnum =  i * globalColCount + j;
                     int bytePosition = procLocalPnum * dataTypeSize;
-                    rowBlockRow[j] = mappedBytes.getShort(bytePosition);
+                    tmp = mappedBytes.getShort(bytePosition) * (divideByShortMax ? 1.0/Short.MAX_VALUE : 1.0);
+                    // -1.0 indicates missing values
+                    assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
+                    if (transform != 1.0 && tmp >= 0.0) {
+                        tmp = Math.pow(tmp, transform);
+                    }
+                    rowBlockRow[j] = (short)(tmp * Short.MAX_VALUE);
                 }
             }
            return rowBlock;
@@ -39,14 +45,14 @@ public class BinaryReader2D {
         return null;
     }
 
-    public static short[][] readConstant(Range rows, int globalColCount, short w){
-
+    public static short[][] readConstant(Range rows, int globalColCount, double w){
+        assert w >= 0.0 && w <= 1.0;
         int rowCount = rows.getLength();
         short[][] weights = new short[rowCount][];
         for (int i = 0; i < rowCount; ++i){
             weights[i] = new short[globalColCount];
             for (int j = 0; j < globalColCount; ++j){
-                weights[i][j] = ((short)(w * Short.MAX_VALUE));
+                weights[i][j] = (short)(w * Short.MAX_VALUE);
             }
         }
         return weights;

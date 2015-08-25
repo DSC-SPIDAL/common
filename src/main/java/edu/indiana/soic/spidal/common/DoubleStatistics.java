@@ -20,9 +20,10 @@ import java.util.stream.IntStream;
  * on a parallel stream
  */
 public class DoubleStatistics implements DoubleConsumer {
-    public static int extent = Long.BYTES + 7*Double.BYTES;// count(long) and 7 (1 max+6 sum) double values
+    public static int extent = Long.BYTES + 8*Double.BYTES;// count(long) and 8 (1 positiveMin, 1 max, and 6 sum) double values
 
     private long count = 0l;
+    private double positiveMin = Double.MAX_VALUE;
     private double max = 0.0d;
     private double sum = 0.0d;
     private double sumCompensation; // Low order bits of sum
@@ -35,9 +36,10 @@ public class DoubleStatistics implements DoubleConsumer {
     public DoubleStatistics() {
     }
 
-    private DoubleStatistics(long count, double max, double sum, double sumCompensation, double simpleSum, double sumOfSquare,
+    private DoubleStatistics(long count, double positiveMin, double max, double sum, double sumCompensation, double simpleSum, double sumOfSquare,
                              double sumOfSquareCompensation, double simpleSumOfSquare) {
         this.count = count;
+        this.positiveMin = positiveMin;
         this.max = max;
         this.sum = sum;
         this.sumCompensation = sumCompensation;
@@ -55,6 +57,7 @@ public class DoubleStatistics implements DoubleConsumer {
     @Override
     public void accept(double value) {
         ++count;
+        positiveMin = value > 0.0 && value < positiveMin ? value : positiveMin;
         max = Math.max(max,value);
         simpleSum += value;
         sumWithCompensation(value);
@@ -72,6 +75,7 @@ public class DoubleStatistics implements DoubleConsumer {
      */
     public void combine(DoubleStatistics other) {
         count += other.count;
+        positiveMin = Math.min(positiveMin, other.positiveMin);
         max = Math.max(max,other.max);
         simpleSum += other.simpleSum;
         sumWithCompensation(other.sum);
@@ -121,6 +125,12 @@ public class DoubleStatistics implements DoubleConsumer {
     public final double getMax() {
         return max;
     }
+
+    /**
+     * Returns the minimum value that is greater than zero
+     * @return the minimum value that is greater than zero
+     */
+    public final double getPositiveMin() { return positiveMin; }
 
     /**
      * Returns the sum of values recorded, or zero if no values have been
@@ -206,16 +216,17 @@ public class DoubleStatistics implements DoubleConsumer {
      * @param buffer the buffer to use
      * @param index the element number NOT the position
      */
-    public void addToBuffer(ByteBuffer buffer, int index){
-        buffer.position(index*extent);
+    public void addToBuffer(ByteBuffer buffer, int index) {
+        buffer.position(index * extent);
         buffer.putLong(count).
-                putDouble(max).
-                      putDouble(getSum()).
-                      putDouble(sumCompensation).
-                      putDouble(simpleSum).
-                      putDouble(getSumOfSquare()).
-                      putDouble(sumOfSquareCompensation).
-                      putDouble(simpleSumOfSquare);
+            putDouble(positiveMin).
+                  putDouble(max).
+                  putDouble(getSum()).
+                  putDouble(sumCompensation).
+                  putDouble(simpleSum).
+                  putDouble(getSumOfSquare()).
+                  putDouble(sumOfSquareCompensation).
+                  putDouble(simpleSumOfSquare);
     }
 
     /**
@@ -226,6 +237,7 @@ public class DoubleStatistics implements DoubleConsumer {
     public static DoubleStatistics getFromBuffer(ByteBuffer buffer, int index){
         buffer.position(index*extent);
         long tmpCount = buffer.getLong();
+        double tmpPositiveMin = buffer.getDouble();
         double tmpMax = buffer.getDouble();
         double tmpSum = buffer.getDouble();
         double tmpSumCompensation = buffer.getDouble();
@@ -234,6 +246,7 @@ public class DoubleStatistics implements DoubleConsumer {
         double tmpSumOfSquareCompensation = buffer.getDouble();
         double tmpSimpleSumOfSquare = buffer.getDouble();
         return new DoubleStatistics(tmpCount,
+                                    tmpPositiveMin,
                                     tmpMax,
                                        tmpSum,
                                        tmpSumCompensation,
