@@ -9,6 +9,42 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class BinaryReader2D {
+    public static short[][] readRowRange(String fname, Range rows, int globalColCount, ByteOrder endianness, boolean divideByShortMax, TransformationFunction function){
+        try (FileChannel fc = (FileChannel) Files
+                .newByteChannel(Paths.get(fname), StandardOpenOption.READ)) {
+            int dataTypeSize = Short.BYTES;
+            long pos = ((long) rows.getStartIndex()) * globalColCount *
+                    dataTypeSize;
+            MappedByteBuffer mappedBytes = fc.map(
+                    FileChannel.MapMode.READ_ONLY, pos,
+                    rows.getLength() * globalColCount * dataTypeSize);
+            mappedBytes.order(endianness);
+
+            int rowCount = rows.getLength();
+            short[][] rowBlock = new short[rowCount][];
+            double tmp;
+            for (int i = 0; i < rowCount; ++i){
+                short [] rowBlockRow = rowBlock[i] = new short[globalColCount];
+                for (int j = 0; j < globalColCount; ++j){
+                    int procLocalPnum =  i * globalColCount + j;
+                    int bytePosition = procLocalPnum * dataTypeSize;
+                    tmp = mappedBytes.getShort(bytePosition) * (divideByShortMax ? 1.0/Short.MAX_VALUE : 1.0);
+                    // -1.0 indicates missing values
+                    assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
+                    if (function != null) {
+                        tmp = function.transform(tmp);
+                    }
+                    rowBlockRow[j] = (short)(tmp * Short.MAX_VALUE);
+                }
+            }
+            return rowBlock;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static short[][] readRowRange(String fname, Range rows, int globalColCount, ByteOrder endianness, boolean divideByShortMax, double transform){
         try (FileChannel fc = (FileChannel) Files
             .newByteChannel(Paths.get(fname), StandardOpenOption.READ)) {
