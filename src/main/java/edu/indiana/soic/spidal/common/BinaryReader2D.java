@@ -34,23 +34,13 @@ public class BinaryReader2D {
                 mappedByteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, procLocalByteStartOffset+bytesRead, chunkSizeInBytes);
                 mappedByteBuffer.order(endianness);
 
-                for (int i = 0; i < chunkSizeInBytes;){
+                for (int i = 0; i <= chunkSizeInBytes-dataTypeSize;){
                     int procLocalRow = (int)(bytesRead / (dataTypeSize*globalColCount));
                     int globalCol = (int)((bytesRead % (dataTypeSize*globalColCount))/dataTypeSize);
-                    if (procLocalRow == 200000 || globalCol == 200000){
-                        System.out.println("*** procLocalRow=" + procLocalRow + " globalCol=" + globalCol + " bytesRead=" + bytesRead + " (int)(bytesRead / (dataTypeSize*globalColCount))=" + ((int)(bytesRead / (dataTypeSize*globalColCount))) + " (int)(bytesRead % (dataTypeSize*globalColCount))=" + ((int)(bytesRead % (dataTypeSize*globalColCount))));
-                    }
 
-
-                    tmp = 0;
-                    try {
-                        tmp = mappedByteBuffer.getShort(i) * (divideByShortMax ? INV_SHORT_MAX : 1.0);
-                    }
-                    catch (Exception e) {
-                        System.out.println("++++++chunkSizeInBytes=" + chunkSizeInBytes + " i=" + i + " mappedByteBuffer.limit()=" + mappedByteBuffer.limit() );
-
-                    }
+                    tmp = mappedByteBuffer.getShort(i) * (divideByShortMax ? INV_SHORT_MAX : 1.0);
                     bytesRead+=((int)dataTypeSize);
+
                     // -1.0 indicates missing values
                     assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
                     if (function != null) {
