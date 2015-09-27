@@ -36,7 +36,7 @@ public class BinaryReader2D {
 
                 for (int i = 0; i < chunkSizeInBytes;){
                     int procLocalRow = (int)(bytesRead / (dataTypeSize*globalColCount));
-                    int globalCol = (int)(bytesRead % (dataTypeSize*globalColCount));
+                    int globalCol = (int)((bytesRead % (dataTypeSize*globalColCount))/dataTypeSize);
                     if (procLocalRow == 200000 || globalCol == 200000){
                         System.out.println("*** procLocalRow=" + procLocalRow + " globalCol=" + globalCol + " bytesRead=" + bytesRead + " (int)(bytesRead / (dataTypeSize*globalColCount))=" + ((int)(bytesRead / (dataTypeSize*globalColCount))) + " (int)(bytesRead % (dataTypeSize*globalColCount))=" + ((int)(bytesRead % (dataTypeSize*globalColCount))));
                     }
