@@ -17,7 +17,7 @@ public class BinaryReader2D {
                     dataTypeSize;
             final long extent = rows.getLength() * globalColCount * dataTypeSize;
             int maps = (int)(extent / Integer.MAX_VALUE);
-            if ((extent%Integer.MAX_VALUE) >= 0) ++maps;
+            if ((extent%((long)Integer.MAX_VALUE)) >= 0) ++maps;
             System.out.println(maps);
 
             MappedByteBuffer[] mappedByteBuffers = new MappedByteBuffer[maps];
