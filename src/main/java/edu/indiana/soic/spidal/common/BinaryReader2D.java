@@ -9,7 +9,57 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class BinaryReader2D {
-    public static short[][] readRowRange(String fname, Range rows, int globalColCount, ByteOrder endianness, boolean divideByShortMax, TransformationFunction function){
+    private static final double INV_SHORT_MAX = 1.0 / Short.MAX_VALUE;
+
+    public static short[][] readRowRange(
+        String fname, Range rows, int globalColCount, ByteOrder endianness,
+        boolean divideByShortMax, TransformationFunction function) {
+        try (FileChannel fc = (FileChannel) Files.newByteChannel(Paths.get(
+            fname), StandardOpenOption.READ)) {
+
+            final long dataTypeSize = Short.BYTES;
+            final int procRowStartIdx = rows.getStartIndex();
+            final int procRowCount = rows.getLength();
+
+            final long procLocalByteStartOffset = procRowStartIdx * globalColCount * dataTypeSize;
+            final long procLocalByteExtent = procRowCount * globalColCount * dataTypeSize;
+
+            MappedByteBuffer mappedByteBuffer;
+            short[][] rowBlock = new short[procRowCount][globalColCount];
+            long remainingBytes = procLocalByteExtent;
+            long bytesRead = 0L;
+            double tmp;
+            while (remainingBytes > 0){
+                int chunkSizeInBytes = (int)(remainingBytes > Integer.MAX_VALUE ? Integer.MAX_VALUE : remainingBytes);
+                mappedByteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, procLocalByteStartOffset+bytesRead, chunkSizeInBytes);
+                mappedByteBuffer.order(endianness);
+
+                for (int i = 0; i < chunkSizeInBytes;){
+                    tmp = mappedByteBuffer.getShort(i) * (divideByShortMax ? INV_SHORT_MAX : 1.0);
+                    bytesRead+=((int)dataTypeSize);
+                    int procLocalRow = (int)(bytesRead / (dataTypeSize*globalColCount));
+                    int globalCol = (int)(bytesRead % (dataTypeSize*globalColCount));
+
+                    // -1.0 indicates missing values
+                    assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
+                    if (function != null) {
+                        tmp = function.transform(tmp);
+                    }
+                    rowBlock[procLocalRow+procRowStartIdx][globalCol] = (short)(tmp * Short.MAX_VALUE);
+
+                    i += ((int)dataTypeSize);
+                }
+                remainingBytes -= chunkSizeInBytes;
+            }
+            return rowBlock;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static short[][] readRowRangeOld(String fname, Range rows, int globalColCount, ByteOrder endianness, boolean divideByShortMax, TransformationFunction function){
         try (FileChannel fc = (FileChannel) Files
                 .newByteChannel(Paths.get(fname), StandardOpenOption.READ)) {
             int dataTypeSize = Short.BYTES;
