@@ -15,10 +15,17 @@ public class BinaryReader2D {
             int dataTypeSize = Short.BYTES;
             long pos = ((long) rows.getStartIndex()) * globalColCount *
                     dataTypeSize;
-            MappedByteBuffer mappedBytes = fc.map(
-                    FileChannel.MapMode.READ_ONLY, pos,
-                    rows.getLength() * globalColCount * dataTypeSize);
-            mappedBytes.order(endianness);
+            final long extent = rows.getLength() * globalColCount * dataTypeSize;
+            int maps = (int)(extent / Integer.MAX_VALUE);
+            if (extent%Integer.MAX_VALUE > 0) ++maps;
+
+            MappedByteBuffer[] mappedByteBuffers = new MappedByteBuffer[maps];
+            for (int i = 0; i < maps-1; ++i){
+                mappedByteBuffers[i] = fc.map(FileChannel.MapMode.READ_ONLY, pos+(((long)i)*Integer.MAX_VALUE), Integer.MAX_VALUE);
+                mappedByteBuffers[i].order(endianness);
+            }
+            mappedByteBuffers[maps-1] = fc.map(FileChannel.MapMode.READ_ONLY, pos+(((long)(maps-1))*Integer.MAX_VALUE), extent-((maps-1)*((long)Integer.MAX_VALUE)));
+            mappedByteBuffers[maps-1].order(endianness);
 
             int rowCount = rows.getLength();
             short[][] rowBlock = new short[rowCount][];
@@ -26,9 +33,11 @@ public class BinaryReader2D {
             for (int i = 0; i < rowCount; ++i){
                 short [] rowBlockRow = rowBlock[i] = new short[globalColCount];
                 for (int j = 0; j < globalColCount; ++j){
-                    int procLocalPnum =  i * globalColCount + j;
-                    int bytePosition = procLocalPnum * dataTypeSize;
-                    tmp = mappedBytes.getShort(bytePosition) * (divideByShortMax ? 1.0/Short.MAX_VALUE : 1.0);
+                    long procLocalPnum =  ((long)i) * globalColCount + j;
+                    long procLocalBytePosition = procLocalPnum * dataTypeSize;
+                    int bufferIdx = (int)(procLocalBytePosition / Integer.MAX_VALUE);
+                    int bufferLocalBytePosition = (int)(procLocalBytePosition % Integer.MAX_VALUE);
+                    tmp = mappedByteBuffers[bufferIdx].getShort(bufferLocalBytePosition) * (divideByShortMax ? 1.0/Short.MAX_VALUE : 1.0);
                     // -1.0 indicates missing values
                     assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
                     if (function != null) {
