@@ -21,8 +21,7 @@ public class BinaryReader2D {
             final int procRowStartIdx = rows.getStartIndex();
             final int procRowCount = rows.getLength();
 
-            final long procLocalByteStartOffset = procRowStartIdx * globalColCount * dataTypeSize;
-            System.out.println("*******" + procLocalByteStartOffset);
+            final long procLocalByteStartOffset = ((long)procRowStartIdx) * ((long)globalColCount) * dataTypeSize;
             final long procLocalByteExtent = procRowCount * globalColCount * dataTypeSize;
 
             MappedByteBuffer mappedByteBuffer;
