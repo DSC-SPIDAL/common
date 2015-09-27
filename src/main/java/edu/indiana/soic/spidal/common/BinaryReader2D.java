@@ -45,7 +45,7 @@ public class BinaryReader2D {
                     if (function != null) {
                         tmp = function.transform(tmp);
                     }
-                    rowBlock[procLocalRow+procRowStartIdx][globalCol] = (short)(tmp * Short.MAX_VALUE);
+                    rowBlock[procLocalRow][globalCol] = (short)(tmp * Short.MAX_VALUE);
 
                     i += ((int)dataTypeSize);
                 }
