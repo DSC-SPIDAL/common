@@ -15,7 +15,7 @@ public class BinaryReader2D {
             int dataTypeSize = Short.BYTES;
             long pos = ((long) rows.getStartIndex()) * globalColCount *
                     dataTypeSize;
-            final long extent = rows.getLength() * globalColCount * dataTypeSize;
+            final long extent = ((long)rows.getLength()) * globalColCount * dataTypeSize;
             int maps = (int)(extent / Integer.MAX_VALUE);
             if ((extent%((long)Integer.MAX_VALUE)) >= 0) ++maps;
             System.out.println(extent + " " + Integer.MAX_VALUE + " r=" + (extent%((long)Integer.MAX_VALUE)) + " q=" + (int)(extent / Integer.MAX_VALUE) + " " + maps);
