@@ -17,12 +17,12 @@ public class BinaryReader2D {
         try (FileChannel fc = (FileChannel) Files.newByteChannel(Paths.get(
             fname), StandardOpenOption.READ)) {
 
-            final long dataTypeSize = Short.BYTES;
+            final long dataTypeSize = ((long)Short.BYTES);
             final int procRowStartIdx = rows.getStartIndex();
             final int procRowCount = rows.getLength();
 
             final long procLocalByteStartOffset = ((long)procRowStartIdx) * ((long)globalColCount) * dataTypeSize;
-            final long procLocalByteExtent = procRowCount * globalColCount * dataTypeSize;
+            final long procLocalByteExtent = ((long)procRowCount) * ((long)globalColCount) * dataTypeSize;
 
             MappedByteBuffer mappedByteBuffer;
             short[][] rowBlock = new short[procRowCount][globalColCount];
