@@ -37,7 +37,7 @@ public class BinaryReader2D {
                     long procLocalPnum =  ((long)i) * globalColCount + j;
                     long procLocalBytePosition = procLocalPnum * dataTypeSize;
                     int bufferIdx = (int)(procLocalBytePosition / Integer.MAX_VALUE);
-                    int bufferLocalBytePosition = (int)(procLocalBytePosition % Integer.MAX_VALUE);
+                    int bufferLocalBytePosition = (int)(procLocalBytePosition - (((long)bufferIdx)*Integer.MAX_VALUE));
                     tmp = mappedByteBuffers[bufferIdx].getShort(bufferLocalBytePosition) * (divideByShortMax ? 1.0/Short.MAX_VALUE : 1.0);
                     // -1.0 indicates missing values
                     assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
