@@ -35,11 +35,11 @@ public class BinaryReader2D {
                 mappedByteBuffer.order(endianness);
 
                 for (int i = 0; i < chunkSizeInBytes;){
-                    tmp = mappedByteBuffer.getShort(i) * (divideByShortMax ? INV_SHORT_MAX : 1.0);
-                    bytesRead+=((int)dataTypeSize);
                     int procLocalRow = (int)(bytesRead / (dataTypeSize*globalColCount));
                     int globalCol = (int)(bytesRead % (dataTypeSize*globalColCount));
 
+                    tmp = mappedByteBuffer.getShort(i) * (divideByShortMax ? INV_SHORT_MAX : 1.0);
+                    bytesRead+=((int)dataTypeSize);
                     // -1.0 indicates missing values
                     assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
                     if (function != null) {
