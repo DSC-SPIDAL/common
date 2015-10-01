@@ -257,7 +257,7 @@ public class MatrixUtils {
      * @return
      */
     public static void matrixMultiply(
-        float[][] A, double[][] B, int aHeight, int bWidth, int comm, int bz, float[][] C) {
+        float[][] A, double[][] B, int aHeight, int bWidth, int comm, int bz, double[][] C) {
 
         int aHeightBlocks = aHeight / bz; // size = Height of A
         int aLastBlockHeight = aHeight - (aHeightBlocks * bz);
