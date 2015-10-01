@@ -327,10 +327,8 @@ public class MatrixUtils {
      * @param comm    - size of the common face
      * @return
      */
-    public static double[][] matrixMultiply(
-        double[][] A, double[][] B, int aHeight, int bWidth, int comm, int bz) {
-
-        double[][] C = new double[aHeight][bWidth];
+    public static void matrixMultiply(
+        double[][] A, double[][] B, int aHeight, int bWidth, int comm, int bz, double[][] C) {
 
         int aHeightBlocks = aHeight / bz; // size = Height of A
         int aLastBlockHeight = aHeight - (aHeightBlocks * bz);
@@ -384,8 +382,6 @@ public class MatrixUtils {
                 }
             }
         }
-
-        return C;
     }
 
     public static double[][] naiveMM(
