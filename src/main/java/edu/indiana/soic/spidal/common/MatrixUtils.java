@@ -256,10 +256,8 @@ public class MatrixUtils {
      * @param comm    - size of the common face
      * @return
      */
-    public static double[][] matrixMultiply(
-        float[][] A, double[][] B, int aHeight, int bWidth, int comm, int bz) {
-
-        double[][] C = new double[aHeight][bWidth];
+    public static void matrixMultiply(
+        float[][] A, double[][] B, int aHeight, int bWidth, int comm, int bz, float[][] C) {
 
         int aHeightBlocks = aHeight / bz; // size = Height of A
         int aLastBlockHeight = aHeight - (aHeightBlocks * bz);
@@ -313,8 +311,6 @@ public class MatrixUtils {
                 }
             }
         }
-
-        return C;
     }
 
     /**
