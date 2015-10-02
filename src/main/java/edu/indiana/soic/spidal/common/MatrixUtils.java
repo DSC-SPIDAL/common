@@ -92,10 +92,9 @@ public class MatrixUtils {
         return C;
     }
 
-    public static double[][] matrixMultiplyWithThreadOffset(
+    public static void matrixMultiplyWithThreadOffset(
         WeightsWrap A, double[] Adiag, double[][] B,
-        int aHeight, int bWidth, int comm, int bz, int threadRowOffset, int rowOffset) {
-        double[][] C = new double[aHeight][bWidth];
+        int aHeight, int bWidth, int comm, int bz, int threadRowOffset, int rowOffset, double[][] C) {
 
         int aHeightBlocks = aHeight / bz; // size = Height of A
         int aLastBlockHeight = aHeight - (aHeightBlocks * bz);
@@ -158,8 +157,6 @@ public class MatrixUtils {
                 }
             }
         }
-
-        return C;
     }
 
 
