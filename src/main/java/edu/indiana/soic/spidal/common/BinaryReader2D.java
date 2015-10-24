@@ -13,7 +13,56 @@ public class BinaryReader2D {
 
     public static short[][] readRowRange(
         String fname, Range rows, int globalColCount, ByteOrder endianness,
+        boolean divideByShortMax, TransformationFunction function, int repetitions) {
+
+        int trueGlobalRowCount, trueGlobalColCount;
+        trueGlobalRowCount = trueGlobalColCount = globalColCount / repetitions;
+        int shouldBeZero = globalColCount % repetitions;
+        assert shouldBeZero == 0;
+
+        int rowStartIdx = rows.getStartIndex();
+        int rowEndIdx = rows.getEndIndex();
+
+        int rowStartRepNumber = rowStartIdx / trueGlobalRowCount;
+        int rowEndRepNumber = rowEndIdx / trueGlobalRowCount;
+
+        short[][] rowBlock = new short[rows.getLength()][globalColCount];
+        int trueRowStartIdx = rowStartIdx - (rowStartRepNumber * trueGlobalRowCount);
+        int trueRowEndIdx = rowEndIdx - (rowEndRepNumber * trueGlobalRowCount);
+        int rowStartOffset = 0;
+        for (int i = rowStartRepNumber; i <= rowEndRepNumber; ++i){
+            if (i != rowStartRepNumber) trueRowStartIdx = 0;
+            if (i != rowEndRepNumber) trueRowEndIdx = trueGlobalRowCount;
+            readRowRangeInternal(
+                fname, new Range(trueRowStartIdx, trueRowEndIdx),
+                trueGlobalColCount, endianness, divideByShortMax, function,
+                rowBlock, rowStartOffset);
+            rowStartOffset += ((trueRowEndIdx - trueRowStartIdx)+1);
+        }
+
+        for (int row = 0; row < rows.getLength(); ++row) {
+            short[] tmp = rowBlock[row];
+            for (int i = 1; i < repetitions; ++i) {
+                System.arraycopy(tmp, 0, tmp, i*trueGlobalColCount,trueGlobalColCount);
+            }
+        }
+        return rowBlock;
+    }
+
+    public static short[][] readRowRange(
+        String fname, Range rows, int globalColCount, ByteOrder endianness,
         boolean divideByShortMax, TransformationFunction function) {
+
+        short[][] rowBlock = new short[rows.getLength()][globalColCount];
+        readRowRangeInternal(fname, rows, globalColCount, endianness, divideByShortMax, function, rowBlock, 0);
+        return rowBlock;
+    }
+
+
+
+    public static void readRowRangeInternal(
+        String fname, Range rows, int globalColCount, ByteOrder endianness,
+        boolean divideByShortMax, TransformationFunction function, short[][] rowBlock, int rowStartOffset) {
         try (FileChannel fc = (FileChannel) Files.newByteChannel(Paths.get(
             fname), StandardOpenOption.READ)) {
 
@@ -25,7 +74,6 @@ public class BinaryReader2D {
             final long procLocalByteExtent = ((long)procRowCount) * ((long)globalColCount) * dataTypeSize;
 
             MappedByteBuffer mappedByteBuffer;
-            short[][] rowBlock = new short[procRowCount][globalColCount];
             long remainingBytes = procLocalByteExtent;
             long bytesRead = 0L;
             double tmp;
@@ -46,18 +94,16 @@ public class BinaryReader2D {
                     if (function != null) {
                         tmp = function.transform(tmp);
                     }
-                    rowBlock[procLocalRow][globalCol] = (short)(tmp * Short.MAX_VALUE);
+                    rowBlock[procLocalRow+rowStartOffset][globalCol] = (short)(tmp * Short.MAX_VALUE);
 
                     i += ((int)dataTypeSize);
                 }
                 remainingBytes -= chunkSizeInBytes;
             }
-            return rowBlock;
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     public static short[][] readConstant(Range rows, int globalColCount, double w){
