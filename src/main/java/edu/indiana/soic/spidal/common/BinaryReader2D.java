@@ -114,7 +114,14 @@ public class BinaryReader2D {
                     catch (ArrayIndexOutOfBoundsException e) {
 
                         try {
-                            System.out.println("***ERROR*** RANK=" + MPI.COMM_WORLD.getRank() + " totalRows=" + rowBlock.length + " rowStartOffset=" + rowStartOffset + " idx=" + (procLocalRow+rowStartOffset));
+                            if (MPI.COMM_WORLD.getRank() == 1149) {
+                                System.out.println(
+                                    "***ERROR*** RANK=" + MPI.COMM_WORLD
+                                        .getRank() + " totalRows=" + rowBlock
+                                        .length + " rowStartOffset="
+                                    + rowStartOffset + " idx=" + (procLocalRow
+                                                                  + rowStartOffset));
+                            }
                         }
                         catch (MPIException e1) {
                             e1.printStackTrace();
