@@ -32,14 +32,7 @@ public class BinaryReader2D {
         int rowStartOffset = 0;
         for (int i = rowStartRepNumber; i <= rowEndRepNumber; ++i){
             if (i != rowStartRepNumber) trueRowStartIdx = 0;
-            if (i != rowEndRepNumber) trueRowEndIdx = trueGlobalRowCount;
-            if (trueRowStartIdx < 0 || trueRowStartIdx >= trueGlobalRowCount){
-                throw new RuntimeException("Error trueRowStartIdx=" + trueRowStartIdx + " should be between [0," + trueGlobalColCount + "]");
-            }
-
-            if (trueRowEndIdx < 0 || trueRowEndIdx >= trueGlobalRowCount){
-                throw new RuntimeException("Error trueRowEndIdx=" + trueRowEndIdx + " should be between [0," + trueGlobalColCount + "]");
-            }
+            if (i != rowEndRepNumber) trueRowEndIdx = trueGlobalRowCount-1;
 
             readRowRangeInternal(
                 fname, new Range(trueRowStartIdx, trueRowEndIdx),
