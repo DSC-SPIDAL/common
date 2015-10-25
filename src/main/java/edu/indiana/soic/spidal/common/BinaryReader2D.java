@@ -126,7 +126,6 @@ public class BinaryReader2D {
                         catch (MPIException e1) {
                             e1.printStackTrace();
                         }
-                        e.printStackTrace();
 
 
                     }
