@@ -37,6 +37,16 @@ public class BinaryReader2D {
             if (i != rowStartRepNumber) trueRowStartIdx = 0;
             if (i != rowEndRepNumber) trueRowEndIdx = trueGlobalRowCount-1;
 
+            // TODO - remove after testing
+            try {
+                if (MPI.COMM_WORLD.getRank() == 1149){
+                    System.out.println("++++++ rowStartIdx="+rows.getStartIndex() + " rowEndIdx=" + rows.getEndIndex() + " rowCount=" + rows.getLength() + " rowStartOffset=" + rowStartOffset + " trueRowStartIdx=" + trueRowStartIdx + " trueRowEndIdx=" + trueRowEndIdx + " repNumber=" + i);
+                }
+            }
+            catch (MPIException e) {
+                e.printStackTrace();
+            }
+
             readRowRangeInternal(
                 fname, new Range(trueRowStartIdx, trueRowEndIdx),
                 trueGlobalColCount, endianness, divideByShortMax, function,
