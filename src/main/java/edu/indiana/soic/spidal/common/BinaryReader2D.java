@@ -30,10 +30,12 @@ public class BinaryReader2D {
         int rowEndRepNumber = rowEndIdx / trueGlobalRowCount;
 
         short[][] rowBlock = new short[rows.getLength()][globalColCount];
-        int trueRowStartIdx = rowStartIdx - (rowStartRepNumber * trueGlobalRowCount);
-        int trueRowEndIdx = rowEndIdx - (rowEndRepNumber * trueGlobalRowCount);
+        int trueRowStartIdx,trueRowEndIdx;
         int rowStartOffset = 0;
         for (int i = rowStartRepNumber; i <= rowEndRepNumber; ++i){
+            trueRowStartIdx = rowStartIdx - (rowStartRepNumber * trueGlobalRowCount);
+            trueRowEndIdx = rowEndIdx - (rowEndRepNumber * trueGlobalRowCount);
+
             if (i != rowStartRepNumber) trueRowStartIdx = 0;
             if (i != rowEndRepNumber) trueRowEndIdx = trueGlobalRowCount-1;
 
