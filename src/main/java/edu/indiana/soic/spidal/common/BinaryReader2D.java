@@ -1,5 +1,8 @@
 package edu.indiana.soic.spidal.common;
 
+import mpi.MPI;
+import mpi.MPIException;
+
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -99,8 +102,18 @@ public class BinaryReader2D {
                         rowBlock[procLocalRow+rowStartOffset][globalCol] = (short)(tmp * Short.MAX_VALUE);
                     }
                     catch (ArrayIndexOutOfBoundsException e) {
-                        System.out.println("***ERROR*** totalRows=" + rowBlock.length + " rowStartOffset=" + rowStartOffset + " idx=" + (procLocalRow+rowStartOffset));
-                        e.printStackTrace();
+                        try {
+                            if (MPI.COMM_WORLD.getRank() == 37) {
+                                System.out.println(
+                                    "***ERROR*** totalRows=" + rowBlock.length +
+                                    " rowStartOffset=" + rowStartOffset + " idx="
+                                    + (procLocalRow + rowStartOffset));
+                                e.printStackTrace();
+                            }
+                        }
+                        catch (MPIException e1) {
+                            e1.printStackTrace();
+                        }
 
 
                     }
