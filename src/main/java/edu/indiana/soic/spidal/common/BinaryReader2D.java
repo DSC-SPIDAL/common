@@ -102,18 +102,14 @@ public class BinaryReader2D {
                         rowBlock[procLocalRow+rowStartOffset][globalCol] = (short)(tmp * Short.MAX_VALUE);
                     }
                     catch (ArrayIndexOutOfBoundsException e) {
+
                         try {
-                            if (MPI.COMM_WORLD.getRank() == 0) {
-                                System.out.println(
-                                    "***ERROR*** totalRows=" + rowBlock.length +
-                                    " rowStartOffset=" + rowStartOffset + " idx="
-                                    + (procLocalRow + rowStartOffset));
-                                e.printStackTrace();
-                            }
+                            System.out.println("***ERROR*** RANK=" + MPI.COMM_WORLD.getRank() + " totalRows=" + rowBlock.length + " rowStartOffset=" + rowStartOffset + " idx=" + (procLocalRow+rowStartOffset));
                         }
                         catch (MPIException e1) {
                             e1.printStackTrace();
                         }
+                        e.printStackTrace();
 
 
                     }
