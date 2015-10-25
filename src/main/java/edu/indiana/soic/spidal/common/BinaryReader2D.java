@@ -103,7 +103,7 @@ public class BinaryReader2D {
                     }
                     catch (ArrayIndexOutOfBoundsException e) {
                         try {
-                            if (MPI.COMM_WORLD.getRank() == 37) {
+                            if (MPI.COMM_WORLD.getRank() == 0) {
                                 System.out.println(
                                     "***ERROR*** totalRows=" + rowBlock.length +
                                     " rowStartOffset=" + rowStartOffset + " idx="
