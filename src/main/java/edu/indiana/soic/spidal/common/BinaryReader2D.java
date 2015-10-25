@@ -95,7 +95,15 @@ public class BinaryReader2D {
                     if (function != null) {
                         tmp = function.transform(tmp);
                     }
-                    rowBlock[procLocalRow+rowStartOffset][globalCol] = (short)(tmp * Short.MAX_VALUE);
+                    try {
+                        rowBlock[procLocalRow+rowStartOffset][globalCol] = (short)(tmp * Short.MAX_VALUE);
+                    }
+                    catch (ArrayIndexOutOfBoundsException e) {
+                        System.out.println("***ERROR*** totalRows=" + rowBlock.length + " rowStartOffset=" + rowStartOffset + " idx=" + (procLocalRow+rowStartOffset));
+                        e.printStackTrace();
+
+
+                    }
 
                     i += ((int)dataTypeSize);
                 }
