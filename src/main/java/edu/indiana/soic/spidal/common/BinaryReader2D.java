@@ -3,10 +3,12 @@ package edu.indiana.soic.spidal.common;
 import mpi.MPI;
 import mpi.MPIException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -122,6 +124,29 @@ public class BinaryReader2D {
             }
         }
         return weights;
+    }
+
+    public static double[] readSimpleFile(String file, int globalRowCount) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(file), Charset.defaultCharset())) {
+            // Read contents of a file, line by line, into a string
+            String inputLineStr;
+            double[] weights = new double[globalRowCount];
+            int numberOfLines = 0;
+            while ((inputLineStr = reader.readLine()) != null) {
+                inputLineStr = inputLineStr.trim();
+
+                if (inputLineStr.length() < 1) {
+                    continue; //replace empty line
+                }
+
+                weights[numberOfLines] = Double.parseDouble(inputLineStr);
+                ++numberOfLines;
+            }
+            reader.close();
+            return weights;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read file: " + file, e);
+        }
     }
 }
 
