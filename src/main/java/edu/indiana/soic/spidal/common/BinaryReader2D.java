@@ -13,7 +13,7 @@ public class BinaryReader2D {
 
     public static short[][] readRowRange(
         String fname, Range rows, int globalColCount, ByteOrder endianness,
-        boolean divideByShortMax, TransformationFunction function, int repetitions) {
+        boolean divideByShortMax, double function, int repetitions) {
 
         int trueGlobalRowCount, trueGlobalColCount;
         trueGlobalRowCount = trueGlobalColCount = globalColCount / repetitions;
@@ -51,7 +51,7 @@ public class BinaryReader2D {
 
     public static short[][] readRowRange(
         String fname, Range rows, int globalColCount, ByteOrder endianness,
-        boolean divideByShortMax, TransformationFunction function) {
+        boolean divideByShortMax, double function) {
 
         short[][] rowBlock = new short[rows.getLength()][globalColCount];
         readRowRangeInternal(fname, rows, globalColCount, endianness, divideByShortMax, function, rowBlock, 0);
@@ -62,7 +62,7 @@ public class BinaryReader2D {
 
     public static void readRowRangeInternal(
         String fname, Range rows, int globalColCount, ByteOrder endianness,
-        boolean divideByShortMax, TransformationFunction function, short[][] rowBlock, int rowStartOffset) {
+        boolean divideByShortMax, double function, short[][] rowBlock, int rowStartOffset) {
         try (FileChannel fc = (FileChannel) Files.newByteChannel(Paths.get(
             fname), StandardOpenOption.READ)) {
 
@@ -91,8 +91,8 @@ public class BinaryReader2D {
 
                     // -1.0 indicates missing values
                     assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
-                    if (function != null) {
-                        tmp = function.transform(tmp);
+                    if (function != 1.0) {
+                        tmp = Math.pow(tmp, function);
                     }
                     rowBlock[procLocalRow+rowStartOffset][globalCol] = (short)(tmp * Short.MAX_VALUE);
 
