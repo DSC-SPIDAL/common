@@ -161,7 +161,7 @@ public class MatrixUtils {
 
     public static void matrixMultiplyWithThreadOffset(
         WeightsWrap A, double[] Adiag, double[] B,
-        int aHeight, int bWidth, int comm, int bz, int threadRowOffset, int rowOffset, double[][] C) {
+        int aHeight, int bWidth, int comm, int bz, int threadRowOffset, int rowOffset, double[] C) {
 
         int aHeightBlocks = aHeight / bz; // size = Height of A
         int aLastBlockHeight = aHeight - (aHeightBlocks * bz);
@@ -185,10 +185,9 @@ public class MatrixUtils {
         int bBlockWidth = bz;
         int commBlockWidth = bz;
 
-        int kOffset;
         double kTmp;
-        double[] iC;
         double kiAdiag;
+        int iOffset;
         for (int ib = 0; ib < aHeightBlocks; ib++) {
             if (aLastBlockHeight > 0 && ib == (aHeightBlocks - 1)) {
                 aBlockHeight = aLastBlockHeight;
@@ -206,12 +205,11 @@ public class MatrixUtils {
                     }
 
                     for (int i = ib * bz; i < (ib * bz) + aBlockHeight; i++) {
-                        iC = C[i];
+                        iOffset=i*bWidth;
                         for (int j = jb * bz; j < (jb * bz) + bBlockWidth;
                              j++) {
                             for (int k = kb * bz;
                                  k < (kb * bz) + commBlockWidth; k++) {
-                                kOffset = k*bWidth;
                                 kiAdiag = 0;
                                 if (i + rowOffset == k) {
                                     kiAdiag = Adiag[i];
@@ -221,9 +219,9 @@ public class MatrixUtils {
                                     kiAdiag = -(A.getWeight(i+threadRowOffset,k));
                                 }
 
-                                kTmp = B[kOffset+j];
+                                kTmp = B[k*bWidth+j];
                                 if (kiAdiag != 0 && kTmp != 0) {
-                                    iC[j] += kiAdiag * kTmp;
+                                    C[iOffset+j] += kiAdiag * kTmp;
                                 }
                             }
                         }
@@ -396,7 +394,7 @@ public class MatrixUtils {
      * @return
      */
     public static void matrixMultiply(
-        double[][] A, double[][] B, int aHeight, int bWidth, int comm, int bz, double[][] C) {
+        double[][] A, double[] B, int aHeight, int bWidth, int comm, int bz, double[] C) {
 
         int aHeightBlocks = aHeight / bz; // size = Height of A
         int aLastBlockHeight = aHeight - (aHeightBlocks * bz);
@@ -420,6 +418,8 @@ public class MatrixUtils {
         int bBlockWidth = bz;
         int commBlockWidth = bz;
 
+        double kTmp;
+        int iOffset;
         for (int ib = 0; ib < aHeightBlocks; ib++) {
             if (aLastBlockHeight > 0 && ib == (aHeightBlocks - 1)) {
                 aBlockHeight = aLastBlockHeight;
@@ -437,12 +437,14 @@ public class MatrixUtils {
                     }
 
                     for (int i = ib * bz; i < (ib * bz) + aBlockHeight; i++) {
+                        iOffset = i*bWidth;
                         for (int j = jb * bz; j < (jb * bz) + bBlockWidth;
                              j++) {
                             for (int k = kb * bz;
                                  k < (kb * bz) + commBlockWidth; k++) {
-                                if (A[i][k] != 0 && B[k][j] != 0) {
-                                    C[i][j] += A[i][k] * B[k][j];
+                                kTmp = B[k*bWidth+j];
+                                if (A[i][k] != 0 && kTmp != 0) {
+                                    C[iOffset+j] += A[i][k] * kTmp;
                                 }
                             }
                         }
