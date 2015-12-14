@@ -1,9 +1,14 @@
 package edu.indiana.soic.spidal.common;
 
+import mpi.MPI;
+import mpi.MPIException;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -13,7 +18,7 @@ public class BinaryReader2D {
 
     public static short[][] readRowRange(
         String fname, Range rows, int globalColCount, ByteOrder endianness,
-        boolean divideByShortMax, double function, int repetitions) {
+        boolean divideByShortMax, TransformationFunction function, int repetitions) {
 
         int trueGlobalRowCount, trueGlobalColCount;
         trueGlobalRowCount = trueGlobalColCount = globalColCount / repetitions;
@@ -27,12 +32,15 @@ public class BinaryReader2D {
         int rowEndRepNumber = rowEndIdx / trueGlobalRowCount;
 
         short[][] rowBlock = new short[rows.getLength()][globalColCount];
-        int trueRowStartIdx = rowStartIdx - (rowStartRepNumber * trueGlobalRowCount);
-        int trueRowEndIdx = rowEndIdx - (rowEndRepNumber * trueGlobalRowCount);
+        int trueRowStartIdx,trueRowEndIdx;
         int rowStartOffset = 0;
         for (int i = rowStartRepNumber; i <= rowEndRepNumber; ++i){
+            trueRowStartIdx = rowStartIdx - (rowStartRepNumber * trueGlobalRowCount);
+            trueRowEndIdx = rowEndIdx - (rowEndRepNumber * trueGlobalRowCount);
+
             if (i != rowStartRepNumber) trueRowStartIdx = 0;
-            if (i != rowEndRepNumber) trueRowEndIdx = trueGlobalRowCount;
+            if (i != rowEndRepNumber) trueRowEndIdx = trueGlobalRowCount-1;
+
             readRowRangeInternal(
                 fname, new Range(trueRowStartIdx, trueRowEndIdx),
                 trueGlobalColCount, endianness, divideByShortMax, function,
@@ -51,7 +59,7 @@ public class BinaryReader2D {
 
     public static short[][] readRowRange(
         String fname, Range rows, int globalColCount, ByteOrder endianness,
-        boolean divideByShortMax, double function) {
+        boolean divideByShortMax, TransformationFunction function) {
 
         short[][] rowBlock = new short[rows.getLength()][globalColCount];
         readRowRangeInternal(fname, rows, globalColCount, endianness, divideByShortMax, function, rowBlock, 0);
@@ -62,7 +70,7 @@ public class BinaryReader2D {
 
     public static void readRowRangeInternal(
         String fname, Range rows, int globalColCount, ByteOrder endianness,
-        boolean divideByShortMax, double function, short[][] rowBlock, int rowStartOffset) {
+        boolean divideByShortMax, TransformationFunction function, short[][] rowBlock, int rowStartOffset) {
         try (FileChannel fc = (FileChannel) Files.newByteChannel(Paths.get(
             fname), StandardOpenOption.READ)) {
 
@@ -91,11 +99,10 @@ public class BinaryReader2D {
 
                     // -1.0 indicates missing values
                     assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
-                    if (function != 1.0) {
-                        tmp = Math.pow(tmp, function);
+                    if (function != null) {
+                        tmp = function.transform(tmp);
                     }
                     rowBlock[procLocalRow+rowStartOffset][globalCol] = (short)(tmp * Short.MAX_VALUE);
-
                     i += ((int)dataTypeSize);
                 }
                 remainingBytes -= chunkSizeInBytes;
@@ -117,6 +124,29 @@ public class BinaryReader2D {
             }
         }
         return weights;
+    }
+
+    public static double[] readSimpleFile(String file, int globalRowCount) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(file), Charset.defaultCharset())) {
+            // Read contents of a file, line by line, into a string
+            String inputLineStr;
+            double[] weights = new double[globalRowCount];
+            int numberOfLines = 0;
+            while ((inputLineStr = reader.readLine()) != null) {
+                inputLineStr = inputLineStr.trim();
+
+                if (inputLineStr.length() < 1) {
+                    continue; //replace empty line
+                }
+
+                weights[numberOfLines] = Double.parseDouble(inputLineStr);
+                ++numberOfLines;
+            }
+            reader.close();
+            return weights;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read file: " + file, e);
+        }
     }
 }
 
