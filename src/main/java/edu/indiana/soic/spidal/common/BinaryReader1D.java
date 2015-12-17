@@ -1,5 +1,8 @@
 package edu.indiana.soic.spidal.common;
 
+import mpi.MPI;
+import mpi.MPIException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -50,7 +53,19 @@ public class BinaryReader1D {
         for (int row = 0; row < rows.getLength(); ++row) {
             rowOffset = rowOffsetWithRepetitions*row;
             for (int i = 1; i < repetitions; ++i) {
-                System.arraycopy(rowBlock, (rowOffset), rowBlock, rowOffset+(i*globalColCount),trueGlobalColCount);
+                try {
+                    System.arraycopy(rowBlock, (rowOffset), rowBlock, rowOffset+(i*globalColCount),trueGlobalColCount);
+                }
+                catch (ArrayIndexOutOfBoundsException e) {
+                    try {
+                        if (MPI.COMM_WORLD.getRank() == 0){
+                            System.out.println("fromIdx:" + rowOffset + " toIdx: " + rowOffset+(i*globalColCount) + " count: " + trueGlobalColCount + " length: " + rowBlock.length + " rep: " + repetitions);
+                        }
+                    }
+                    catch (MPIException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
         }
     }
