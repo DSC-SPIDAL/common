@@ -48,13 +48,12 @@ public class BinaryReader1D {
             rowStartOffset += ((trueRowEndIdx - trueRowStartIdx)+1);
         }
 
-        int rowOffsetWithRepetitions = globalColCount*repetitions;
         int rowOffset;
         for (int row = 0; row < rows.getLength(); ++row) {
-            rowOffset = rowOffsetWithRepetitions*row;
+            rowOffset = globalColCount*row;
             for (int i = 1; i < repetitions; ++i) {
                 try {
-                    System.arraycopy(rowBlock, (rowOffset), rowBlock, rowOffset+(i*globalColCount),trueGlobalColCount);
+                    System.arraycopy(rowBlock, rowOffset, rowBlock, rowOffset+(i*trueGlobalColCount),trueGlobalColCount);
                 }
                 catch (ArrayIndexOutOfBoundsException e) {
                     try {
