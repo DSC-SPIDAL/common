@@ -3,6 +3,7 @@ package edu.indiana.soic.spidal.common;
 public class WeightsWrap1D {
     private final short[] weights;
     private final short[] distances;
+    private TransformationFunction function = null;
     private double avgDist = 1.0;
     private final boolean isSammon;
     private final double[] simpleWeights;
@@ -21,13 +22,14 @@ public class WeightsWrap1D {
         this.globalColCount = globalColCount;
     }
 
-    public WeightsWrap1D(double[] simpleWeights, Range rowRange, short[] distances, boolean isSammon, int globalColCount) {
+    public WeightsWrap1D(double[] simpleWeights, Range rowRange, short[] distances, boolean isSammon, int globalColCount, TransformationFunction function) {
         this.simpleWeights = simpleWeights;
         this.distances = distances;
         this.isSammon = isSammon;
         this.weights = null;
         this.rowRange = rowRange;
         this.globalColCount = globalColCount;
+        this.function = function;
     }
 
     public double getWeight(int i, int j){
@@ -36,6 +38,9 @@ public class WeightsWrap1D {
             w = weights[i*globalColCount+j] * INV_SHORT_MAX;
         } else if (simpleWeights != null) {
             w = simpleWeights[i + rowRange.getStartIndex()] * simpleWeights[j];
+            if (function != null){
+                w = function.transform(w);
+            }
         } else {
             w = 1.0;
         }
