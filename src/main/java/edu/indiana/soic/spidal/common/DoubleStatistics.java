@@ -49,6 +49,18 @@ public class DoubleStatistics implements DoubleConsumer {
         this.simpleSumOfSquare = simpleSumOfSquare;
     }
 
+    public void copyFrom(DoubleStatistics from){
+        this.count = from.count;
+        this.positiveMin = from.positiveMin;
+        this.max = from.max;
+        this.sum = from.sum;
+        this.sumCompensation = from.sumCompensation;
+        this.simpleSum = from.simpleSum;
+        this.sumOfSquare = from.sumOfSquare;
+        this.sumOfSquareCompensation = from.sumOfSquareCompensation;
+        this.simpleSumOfSquare = from.simpleSumOfSquare;
+    }
+
     /**
      * Records another value into the summary information.
      *
