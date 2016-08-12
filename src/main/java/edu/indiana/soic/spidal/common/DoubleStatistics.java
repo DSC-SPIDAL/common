@@ -5,8 +5,9 @@ import mpi.MPI;
 import mpi.MPIException;
 import mpi.UserFunction;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
-import java.util.function.DoubleConsumer;
+//import java.util.function.DoubleConsumer;
 import java.util.stream.IntStream;
 
 /**
@@ -19,7 +20,7 @@ import java.util.stream.IntStream;
  * {@Linkplain java.util.DoubleSummaryStatistics}, but could be used
  * on a parallel stream
  */
-public class DoubleStatistics implements DoubleConsumer {
+public class DoubleStatistics implements Serializable {
     public static int extent = Long.BYTES + 8*Double.BYTES;// count(long) and 8 (1 positiveMin, 1 max, and 6 sum) double values
 
     private long count = 0l;
@@ -49,24 +50,11 @@ public class DoubleStatistics implements DoubleConsumer {
         this.simpleSumOfSquare = simpleSumOfSquare;
     }
 
-    public void copyFrom(DoubleStatistics from){
-        this.count = from.count;
-        this.positiveMin = from.positiveMin;
-        this.max = from.max;
-        this.sum = from.sum;
-        this.sumCompensation = from.sumCompensation;
-        this.simpleSum = from.simpleSum;
-        this.sumOfSquare = from.sumOfSquare;
-        this.sumOfSquareCompensation = from.sumOfSquareCompensation;
-        this.simpleSumOfSquare = from.simpleSumOfSquare;
-    }
-
     /**
      * Records another value into the summary information.
      *
      * @param value the input value
      */
-    @Override
     public void accept(double value) {
         ++count;
         positiveMin = value > 0.0 && value < positiveMin ? value : positiveMin;

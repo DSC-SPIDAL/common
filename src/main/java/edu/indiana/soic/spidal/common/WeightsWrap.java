@@ -1,6 +1,8 @@
 package edu.indiana.soic.spidal.common;
 
-public class WeightsWrap {
+import java.io.Serializable;
+
+public class WeightsWrap implements Serializable{
     private final short[][] weights;
     private final short[][] distances;
     private double avgDist = 1.0;
