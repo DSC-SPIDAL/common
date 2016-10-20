@@ -294,5 +294,63 @@ public class DoubleStatistics implements DoubleConsumer {
     }
 
 
+    public static int getExtent() {
+        return extent;
+    }
 
+    public double getSumCompensation() {
+        return sumCompensation;
+    }
+
+    public double getSimpleSum() {
+        return simpleSum;
+    }
+
+    public double getSumOfSquareCompensation() {
+        return sumOfSquareCompensation;
+    }
+
+    public double getSimpleSumOfSquare() {
+        return simpleSumOfSquare;
+    }
+
+    public static void setExtent(int extent) {
+        DoubleStatistics.extent = extent;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
+
+    public void setPositiveMin(double positiveMin) {
+        this.positiveMin = positiveMin;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
+    }
+
+    public void setSum(double sum) {
+        this.sum = sum;
+    }
+
+    public void setSumCompensation(double sumCompensation) {
+        this.sumCompensation = sumCompensation;
+    }
+
+    public void setSimpleSum(double simpleSum) {
+        this.simpleSum = simpleSum;
+    }
+
+    public void setSumOfSquare(double sumOfSquare) {
+        this.sumOfSquare = sumOfSquare;
+    }
+
+    public void setSumOfSquareCompensation(double sumOfSquareCompensation) {
+        this.sumOfSquareCompensation = sumOfSquareCompensation;
+    }
+
+    public void setSimpleSumOfSquare(double simpleSumOfSquare) {
+        this.simpleSumOfSquare = simpleSumOfSquare;
+    }
 }
