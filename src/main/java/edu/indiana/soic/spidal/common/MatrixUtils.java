@@ -214,6 +214,15 @@ public class MatrixUtils {
                                 if (i + rowOffset == k) {
                                     kiAdiag = Adiag[i];
                                 }
+                                else {
+                                    //reverse the value from weight
+                                    kiAdiag = -(A.getWeight(i+threadRowOffset,k));
+                                }
+
+                                kTmp = B[k*bWidth+j];
+                                if (kiAdiag != 0 && kTmp != 0) {
+                                    C[iOffset+j] += kiAdiag * kTmp;
+                                }
                             }
                         }
                     }
