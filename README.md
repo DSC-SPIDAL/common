@@ -1,7 +1,7 @@
 # common
 Common classes used by other projects in DSC-SPIDAL
 
-#Compile instructions
+# Compile instructions
 
 Please follow the following instructions to build this project with maven
 This is needed because of an SSL certificate issue with a dependency maven repo
