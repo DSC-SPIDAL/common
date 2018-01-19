@@ -17,7 +17,7 @@ This command will first ask for a password, provide any password of your choosin
 then it will show the following
 
 ```
-"Trust this certificate? [no]:" 
+Trust this certificate? [no]: 
 ```
 
 type "y" and then press enter. Now the cert has been properly installed.
