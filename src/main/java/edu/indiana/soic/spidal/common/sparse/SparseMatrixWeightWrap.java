@@ -14,6 +14,8 @@ public class SparseMatrixWeightWrap{
     }
 
     public double getWeight(int columArrayIndex){
+        if(weight == null) return 1.0;
+
         double w = weight.getValues()[columArrayIndex];
 
         if(!isSammon) return w;

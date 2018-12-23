@@ -8,6 +8,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,9 +42,13 @@ public class SparseMatrixFile {
      * @param dataPath    data
      * @return partial sparse matrix
      */
-    public static SparseMatrix loadIntoMemory(String indicesPath, String dataPath, Range globalThreadRowRange, int dim) {
+    public static SparseMatrix loadIntoMemory(String indicesPath,
+                                              String dataPath,
+                                              Range globalThreadRowRange,
+                                              int dim, ByteOrder endianness) {
         //TODO: check if we can use arrays instead of lists we need to know the length of values before hand for this
-        // maybe we can do a two pass method
+        // maybe we can do a two pass method also need to update data read code
+        // so that it can handle large files ref readRowRangeInternal method
         int startRow = globalThreadRowRange.getStartIndex();
         int endRow = globalThreadRowRange.getEndIndex();
         int length = globalThreadRowRange.getLength();
@@ -51,43 +60,60 @@ public class SparseMatrixFile {
             SparseMatrixFile smf = new SparseMatrixFile();
             smf.indicesFile = new File(indicesPath);
             smf.dataFile = new File(dataPath);
-            BufferedInputStream indexIn = new BufferedInputStream(new FileInputStream(smf.indicesFile));
-            BufferedInputStream dataIn = new BufferedInputStream(new FileInputStream(smf.dataFile));
-            byte[] buf = new byte[8];
-            int len = 0;
+            FileChannel fcIndex = (FileChannel) Files
+                    .newByteChannel(Paths.get(indicesPath),
+                            StandardOpenOption.READ);
+            FileChannel fcData = (FileChannel) Files
+                    .newByteChannel(Paths.get(dataPath),
+                            StandardOpenOption.READ);
+            ByteBuffer byteBufferIndex = ByteBuffer.allocate((int)fcIndex.size());
+            ByteBuffer byteBufferData = ByteBuffer.allocate((int)fcData.size());
+
+            if(endianness.equals(ByteOrder.BIG_ENDIAN)){
+                byteBufferIndex.order(ByteOrder.BIG_ENDIAN);
+                byteBufferData.order(ByteOrder.BIG_ENDIAN);
+            }else{
+                byteBufferIndex.order(ByteOrder.LITTLE_ENDIAN);
+                byteBufferData.order(ByteOrder.LITTLE_ENDIAN);
+            }
+            fcIndex.read(byteBufferIndex);
+            fcData.read(byteBufferData);
+            byteBufferIndex.flip();
+            byteBufferData.flip();
+
             List<Double> values = new ArrayList<>();
             List<Integer> columns = new ArrayList<>();
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
 
             int count = 0;
-            while (indexIn.available() > 0 && dataIn.available() > 0) {
-                len = indexIn.read(buf);
-                long i = bytesToLong(buf);
-                len = indexIn.read(buf);
-                long j = bytesToLong(buf);
-                len = dataIn.read(buf);
-                double value = ByteBuffer.wrap(buf).getDouble();
+            while (byteBufferIndex.hasRemaining() && byteBufferData.hasRemaining()) {
+                int i = byteBufferIndex.getInt();
+                int j = byteBufferIndex.getInt();
+                double value = byteBufferData.getDouble();
                 if (i >= startRow && i <= endRow) {
-                    int localRow = (int) i - startRow;
+                    int localRow = i - startRow;
                     values.add(value);
-                    columns.add((int)j);
+                    columns.add(j);
                     if(rowPointer[localRow] == -1){
                         rowPointer[localRow] = count;
                     }
                     count++;
                 }
             }
-            SparseMatrix sparseMatrix = new SparseMatrix(ArrayUtils.toPrimitive((Double[])values.toArray()),
-                    ArrayUtils.toPrimitive((Integer[])columns.toArray()), rowPointer);
-
-            indexIn.close();
-            dataIn.close();
+            SparseMatrix sparseMatrix =
+                    new SparseMatrix(ArrayUtils.toPrimitive(values.toArray(new Double[values.size()])),
+                    ArrayUtils.toPrimitive(columns.toArray(new Integer[columns.size()])),
+                            rowPointer);
             return sparseMatrix;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static int bytesToInt(byte[] bytes){
+        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
     }
 
     private static long bytesToLong(byte[] bytes) {
