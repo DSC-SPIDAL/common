@@ -2,8 +2,25 @@ package edu.indiana.soic.spidal.common.sparse;
 
 public class SparseMatrixWeightWrap{
 
-    SparseMatrix weight;
-    SparseMatrix distance;
+    private SparseMatrix weight;
+
+    public SparseMatrix getWeight() {
+        return weight;
+    }
+
+    public void setWeight(SparseMatrix weight) {
+        this.weight = weight;
+    }
+
+    public SparseMatrix getDistance() {
+        return distance;
+    }
+
+    public void setDistance(SparseMatrix distance) {
+        this.distance = distance;
+    }
+
+    private SparseMatrix distance;
     private double avgDist = 1.0;
     private boolean isSammon;
 
