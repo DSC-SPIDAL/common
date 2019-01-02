@@ -35,4 +35,17 @@ public class TestSparse {
         assertEquals(results[4], correct[4]);
         assertEquals(results[5], correct[5]);
     }
+
+    @Test
+    public void testSparseMatrixMultiWithDiagonal(){
+        double[] values = {1.0,3.0,5.0,7.0,2.0,4.0,6.0,8.0,1.0,3.0,5.0,7.0,2.0,4.0,6.0,8.0};
+        double[] B = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,1.0,1.0,1.0};
+        int[] columns = {0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3};
+        int[] rowPointer = {0,4,8,12};
+        double[] diagonal = {1.0,4.0,5.0,8.0};
+        double[] results = new double[4*3];
+        SparseMatrix sparseMatrix = new SparseMatrix(values,columns,rowPointer, diagonal);
+        SparseMatrixUtils.sparseMatrixMatrixMultiplyWithDiagonal(sparseMatrix, B, 4, 3, results, 0);
+        assertEquals(55.0, results[0]);
+    }
 }
