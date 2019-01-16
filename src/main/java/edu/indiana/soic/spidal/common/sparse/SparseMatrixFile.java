@@ -53,7 +53,7 @@ public class SparseMatrixFile {
         int startRow = globalThreadRowRange.getStartIndex();
         int endRow = globalThreadRowRange.getEndIndex();
         int length = globalThreadRowRange.getLength();
-        long blockSize = 1024 * 1024 * 5; // 200Mb, the index file will take 200*4
+        long blockSize = 1024 * 1024 * 200; // 200Mb, the index file will take 200*4
         if (startRow < 0 || startRow > endRow || startRow > dim) {
             throw new RuntimeException("Illegal row range");
         }
@@ -82,9 +82,12 @@ public class SparseMatrixFile {
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
             int count = 0;
+            //checks if the loop has already completed the row range
+            boolean isDone = false;
 
+            outer:
             while (currentRead < totalLength) {
-                System.out.println("chukced read " + currentRead);
+
                 rbSizeDa = (blockSize > (totalLength - currentRead)) ?
                         (totalLength - currentRead) : blockSize;
                 rbSizeIn = rbSizeDa * 4;
@@ -96,8 +99,15 @@ public class SparseMatrixFile {
                 byteBufferIndex.order(endianness);
 
                 while (byteBufferIndex.hasRemaining() && byteBufferData.hasRemaining()) {
+                    //first check if the loaded values contains the range
+                    //we check the last row index for that
+                    if (byteBufferIndex.getInt((int) (rbSizeIn / 8 - 8)) < startRow)
+                        break;
+                    
                     int i = byteBufferIndex.getInt();
                     int j = byteBufferIndex.getInt();
+                    if (i > endRow) break outer;
+
                     double value = byteBufferData.getShort() * INV_SHORT_MAX;
                     if (i >= startRow && i <= endRow) {
                         int localRow = i - startRow;
