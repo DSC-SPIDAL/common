@@ -53,7 +53,7 @@ public class SparseMatrixFile {
         int startRow = globalThreadRowRange.getStartIndex();
         int endRow = globalThreadRowRange.getEndIndex();
         int length = globalThreadRowRange.getLength();
-
+        long blockSize = 1024*1024*200; // 200Mb, the index file will take 200*4
         if (startRow < 0 || startRow > endRow || startRow > dim) {
             throw new RuntimeException("Illegal row range");
         }
@@ -67,9 +67,15 @@ public class SparseMatrixFile {
             FileChannel fcData = (FileChannel) Files
                     .newByteChannel(Paths.get(dataPath),
                             StandardOpenOption.READ);
-            ByteBuffer byteBufferIndex = ByteBuffer.allocate((int)fcIndex.size());
-            ByteBuffer byteBufferData = ByteBuffer.allocate((int)fcData.size());
+            long totalLength = fcData.size();
+            long rbSizeDa = (blockSize > totalLength) ?
+                    totalLength : blockSize;
+            long rbSizeIn = rbSizeDa*4; // Bacause we have two int |4*2| values
+            // for each data value which is a short |2| value
 
+            long currentRead = 0;
+            ByteBuffer byteBufferIndex = ByteBuffer.allocate((int)rbSizeIn);
+            ByteBuffer byteBufferData = ByteBuffer.allocate((int)rbSizeDa);
             if(endianness.equals(ByteOrder.BIG_ENDIAN)){
                 byteBufferIndex.order(ByteOrder.BIG_ENDIAN);
                 byteBufferData.order(ByteOrder.BIG_ENDIAN);
@@ -77,31 +83,54 @@ public class SparseMatrixFile {
                 byteBufferIndex.order(ByteOrder.LITTLE_ENDIAN);
                 byteBufferData.order(ByteOrder.LITTLE_ENDIAN);
             }
-            fcIndex.read(byteBufferIndex);
-            fcData.read(byteBufferData);
-            byteBufferIndex.flip();
-            byteBufferData.flip();
 
             List<Double> values = new ArrayList<>();
             List<Integer> columns = new ArrayList<>();
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
-
             int count = 0;
-            while (byteBufferIndex.hasRemaining() && byteBufferData.hasRemaining()) {
-                int i = byteBufferIndex.getInt();
-                int j = byteBufferIndex.getInt();
-                double value = byteBufferData.getShort() * INV_SHORT_MAX;
-                if (i >= startRow && i <= endRow) {
-                    int localRow = i - startRow;
-                    values.add(value);
-                    columns.add(j);
-                    if(rowPointer[localRow] == -1){
-                        rowPointer[localRow] = count;
+
+            while(currentRead < totalLength){
+                rbSizeDa = (blockSize > (totalLength - currentRead)) ?
+                        (totalLength - currentRead) : blockSize;
+                rbSizeIn = rbSizeDa*4;
+
+                if(byteBufferData.capacity() != rbSizeDa){
+                    byteBufferData = ByteBuffer.allocate((int)rbSizeDa);
+                    byteBufferIndex = ByteBuffer.allocate((int)rbSizeIn);
+                    if(endianness.equals(ByteOrder.BIG_ENDIAN)){
+                        byteBufferIndex.order(ByteOrder.BIG_ENDIAN);
+                        byteBufferData.order(ByteOrder.BIG_ENDIAN);
+                    }else{
+                        byteBufferIndex.order(ByteOrder.LITTLE_ENDIAN);
+                        byteBufferData.order(ByteOrder.LITTLE_ENDIAN);
                     }
-                    count++;
                 }
+                byteBufferData.clear();
+                byteBufferIndex.clear();
+                fcIndex.read(byteBufferIndex);
+                fcData.read(byteBufferData);
+                byteBufferIndex.flip();
+                byteBufferData.flip();
+
+                while (byteBufferIndex.hasRemaining() && byteBufferData.hasRemaining()) {
+                    int i = byteBufferIndex.getInt();
+                    int j = byteBufferIndex.getInt();
+                    double value = byteBufferData.getShort() * INV_SHORT_MAX;
+                    if (i >= startRow && i <= endRow) {
+                        int localRow = i - startRow;
+                        values.add(value);
+                        columns.add(j);
+                        if(rowPointer[localRow] == -1){
+                            rowPointer[localRow] = count;
+                        }
+                        count++;
+                    }
+                }
+
+                currentRead += rbSizeDa;
             }
+
             SparseMatrix sparseMatrix =
                     new SparseMatrix(ArrayUtils.toPrimitive(values.toArray(new Double[values.size()])),
                     ArrayUtils.toPrimitive(columns.toArray(new Integer[columns.size()])),
