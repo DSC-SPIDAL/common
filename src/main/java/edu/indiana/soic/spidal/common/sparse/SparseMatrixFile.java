@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -26,7 +27,6 @@ public class SparseMatrixFile {
 
     private File indicesFile;
     private File dataFile;
-
 
 
     private SparseMatrixFile() {
@@ -53,7 +53,7 @@ public class SparseMatrixFile {
         int startRow = globalThreadRowRange.getStartIndex();
         int endRow = globalThreadRowRange.getEndIndex();
         int length = globalThreadRowRange.getLength();
-        long blockSize = 1024*1024*200; // 200Mb, the index file will take 200*4
+        long blockSize = 1024 * 1024 * 5; // 200Mb, the index file will take 200*4
         if (startRow < 0 || startRow > endRow || startRow > dim) {
             throw new RuntimeException("Illegal row range");
         }
@@ -70,19 +70,12 @@ public class SparseMatrixFile {
             long totalLength = fcData.size();
             long rbSizeDa = (blockSize > totalLength) ?
                     totalLength : blockSize;
-            long rbSizeIn = rbSizeDa*4; // Bacause we have two int |4*2| values
+            long rbSizeIn = rbSizeDa * 4; // Bacause we have two int |4*2| values
             // for each data value which is a short |2| value
 
             long currentRead = 0;
-            ByteBuffer byteBufferIndex = ByteBuffer.allocate((int)rbSizeIn);
-            ByteBuffer byteBufferData = ByteBuffer.allocate((int)rbSizeDa);
-            if(endianness.equals(ByteOrder.BIG_ENDIAN)){
-                byteBufferIndex.order(ByteOrder.BIG_ENDIAN);
-                byteBufferData.order(ByteOrder.BIG_ENDIAN);
-            }else{
-                byteBufferIndex.order(ByteOrder.LITTLE_ENDIAN);
-                byteBufferData.order(ByteOrder.LITTLE_ENDIAN);
-            }
+            MappedByteBuffer byteBufferIndex;
+            MappedByteBuffer byteBufferData;
 
             List<Double> values = new ArrayList<>();
             List<Integer> columns = new ArrayList<>();
@@ -90,28 +83,17 @@ public class SparseMatrixFile {
             Arrays.fill(rowPointer, -1);
             int count = 0;
 
-            while(currentRead < totalLength){
+            while (currentRead < totalLength) {
+                System.out.println("chukced read " + currentRead);
                 rbSizeDa = (blockSize > (totalLength - currentRead)) ?
                         (totalLength - currentRead) : blockSize;
-                rbSizeIn = rbSizeDa*4;
-
-                if(byteBufferData.capacity() != rbSizeDa){
-                    byteBufferData = ByteBuffer.allocate((int)rbSizeDa);
-                    byteBufferIndex = ByteBuffer.allocate((int)rbSizeIn);
-                    if(endianness.equals(ByteOrder.BIG_ENDIAN)){
-                        byteBufferIndex.order(ByteOrder.BIG_ENDIAN);
-                        byteBufferData.order(ByteOrder.BIG_ENDIAN);
-                    }else{
-                        byteBufferIndex.order(ByteOrder.LITTLE_ENDIAN);
-                        byteBufferData.order(ByteOrder.LITTLE_ENDIAN);
-                    }
-                }
-                byteBufferData.clear();
-                byteBufferIndex.clear();
-                fcIndex.read(byteBufferIndex);
-                fcData.read(byteBufferData);
-                byteBufferIndex.flip();
-                byteBufferData.flip();
+                rbSizeIn = rbSizeDa * 4;
+                byteBufferData = fcData.map(FileChannel.MapMode.READ_ONLY,
+                        currentRead, rbSizeDa);
+                byteBufferIndex = fcIndex.map(FileChannel.MapMode.READ_ONLY,
+                        currentRead * 4, rbSizeIn);
+                byteBufferData.order(endianness);
+                byteBufferIndex.order(endianness);
 
                 while (byteBufferIndex.hasRemaining() && byteBufferData.hasRemaining()) {
                     int i = byteBufferIndex.getInt();
@@ -121,7 +103,7 @@ public class SparseMatrixFile {
                         int localRow = i - startRow;
                         values.add(value);
                         columns.add(j);
-                        if(rowPointer[localRow] == -1){
+                        if (rowPointer[localRow] == -1) {
                             rowPointer[localRow] = count;
                         }
                         count++;
@@ -133,7 +115,7 @@ public class SparseMatrixFile {
 
             SparseMatrix sparseMatrix =
                     new SparseMatrix(ArrayUtils.toPrimitive(values.toArray(new Double[values.size()])),
-                    ArrayUtils.toPrimitive(columns.toArray(new Integer[columns.size()])),
+                            ArrayUtils.toPrimitive(columns.toArray(new Integer[columns.size()])),
                             rowPointer);
             return sparseMatrix;
         } catch (IOException e) {
@@ -142,7 +124,7 @@ public class SparseMatrixFile {
         return null;
     }
 
-    private static int bytesToInt(byte[] bytes){
+    private static int bytesToInt(byte[] bytes) {
         return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
     }
 
