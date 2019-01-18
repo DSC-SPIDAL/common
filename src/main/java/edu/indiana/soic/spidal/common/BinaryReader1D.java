@@ -97,6 +97,7 @@ public class BinaryReader1D {
             long remainingBytes = procLocalByteExtent;
             long bytesRead = 0L;
             double tmp;
+            short tempshort;
             while (remainingBytes > 0){
                 int chunkSizeInBytes = (int)(remainingBytes > Integer.MAX_VALUE ? Integer.MAX_VALUE : remainingBytes);
                 mappedByteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, procLocalByteStartOffset+bytesRead, chunkSizeInBytes);
@@ -106,15 +107,15 @@ public class BinaryReader1D {
                     int procLocalRow = (int)(bytesRead / (dataTypeSize*globalColCount));
                     int globalCol = (int)((bytesRead % (dataTypeSize*globalColCount))/dataTypeSize);
 
-                    tmp = mappedByteBuffer.getShort(i) * (divideByShortMax ? INV_SHORT_MAX : 1.0);
+                    tempshort = mappedByteBuffer.getShort(i);
                     bytesRead+=((int)dataTypeSize);
 
-                    // -1.0 indicates missing values
-                    assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
-                    if (function != null) {
-                        tmp = function.transform(tmp);
-                    }
-                    rowBlock[((procLocalRow+rowStartOffset)*rowOffsetWithRepetitions)+globalCol] = (short)(tmp * Short.MAX_VALUE);
+//                    // -1.0 indicates missing values
+//                    assert tmp == -1.0 || (tmp >= 0.0 && tmp <= 1.0);
+//                    if (function != null) {
+//                        tmp = function.transform(tmp);
+//                    }
+                    rowBlock[((procLocalRow+rowStartOffset)*rowOffsetWithRepetitions)+globalCol] = tempshort;
                     i += ((int)dataTypeSize);
                 }
                 remainingBytes -= chunkSizeInBytes;
