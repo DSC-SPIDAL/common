@@ -101,7 +101,7 @@ public class SparseMatrixFile {
                 while (byteBufferIndex.hasRemaining() && byteBufferData.hasRemaining()) {
                     //first check if the loaded values contains the range
                     //we check the last row index for that
-                    if (byteBufferIndex.getInt((int) (rbSizeIn / 8 - 8)) < startRow)
+                    if (byteBufferIndex.getInt((int) (rbSizeIn - 8)) < startRow)
                         break;
                     
                     int i = byteBufferIndex.getInt();
