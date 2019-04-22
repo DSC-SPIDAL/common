@@ -20,6 +20,7 @@ import java.util.List;
 public class SparseMatrixFile {
 
     private static final double INV_SHORT_MAX = 1.0 / Short.MAX_VALUE;
+    private static final double INV_INT_MAX = 1.0 / Integer.MAX_VALUE;
 
 
     private String pathname;
@@ -116,7 +117,8 @@ public class SparseMatrixFile {
                 while (byteBufferIndex.hasRemaining() && byteBufferData.hasRemaining()) {
                     int i = byteBufferIndex.getInt();
                     int j = byteBufferIndex.getInt();
-                    double value = byteBufferData.getShort() * INV_SHORT_MAX;
+                    //double value = byteBufferData.getShort() * INV_SHORT_MAX;
+                    double value = byteBufferData.getInt() * INV_INT_MAX;
                     if (i >= startRow && i <= endRow) {
                         int localRow = i - startRow;
                         values.add(value);
