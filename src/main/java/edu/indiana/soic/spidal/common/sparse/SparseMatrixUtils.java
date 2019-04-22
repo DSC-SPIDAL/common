@@ -62,7 +62,7 @@ public class SparseMatrixUtils {
             // fill the multiples
             for (int i = 0; i < mutiples.length; i++) {
                 int colIndex = columns[i];
-                mutiples[i] = B[colIndex*dims + dimension];
+                mutiples[i] = B[colIndex * dims + dimension];
             }
 
             int trackIndex = 0;
@@ -76,14 +76,14 @@ public class SparseMatrixUtils {
                 for (int colC = 0; colC < colCount; colC++) {
 
                     //The diagonal values are taken from the diagonal entry
-                    if (globalRow == columns[trackIndex]) {
-                        tempSum += diagonal[localRow] * mutiples[trackIndex];
-                    } else {
+                    if (globalRow != columns[trackIndex]) {
                         tempSum += values[trackIndex] * mutiples[trackIndex];
                     }
                     trackIndex++;
                 }
-                out[localRow*dims + dimension] = tempSum;
+                //calc for diagonal
+                tempSum += diagonal[localRow] * B[globalRow * dims + dimension];
+                out[localRow * dims + dimension] = tempSum;
 
             }
 
@@ -101,7 +101,7 @@ public class SparseMatrixUtils {
             // fill the multiples
             for (int i = 0; i < mutiples.length; i++) {
                 int colIndex = columns[i];
-                mutiples[i] = B[colIndex*dims + dimension];
+                mutiples[i] = B[colIndex * dims + dimension];
             }
 
             int trackIndex = 0;
@@ -115,14 +115,14 @@ public class SparseMatrixUtils {
                 for (int colC = 0; colC < colCount; colC++) {
 
                     //The diagonal values are taken from the diagonal entry
-                    if (globalRow == columns[trackIndex]) {
-                        tempSum += diagonal[localRow] * mutiples[trackIndex];
-                    } else {
+                    if (globalRow != columns[trackIndex]) {
                         tempSum += -(1.0) * mutiples[trackIndex];
                     }
                     trackIndex++;
                 }
-                out[localRow*dims + dimension] = tempSum;
+                //calc for diagonal
+                tempSum += diagonal[localRow] * B[globalRow * dims + dimension];
+                out[localRow * dims + dimension] = tempSum;
             }
 
         }

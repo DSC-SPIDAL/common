@@ -217,6 +217,7 @@ public class MatrixUtils {
                                 else {
                                     //reverse the value from weight
                                     kiAdiag = -(A.getWeight(i+threadRowOffset,k));
+                                    if(Math.abs(kiAdiag) > 0.5) kiAdiag = -1.0;
                                 }
 
                                 kTmp = B[k*bWidth+j];
