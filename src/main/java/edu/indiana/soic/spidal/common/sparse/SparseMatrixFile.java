@@ -71,7 +71,7 @@ public class SparseMatrixFile {
             long totalLength = fcData.size();
             long rbSizeDa = (blockSize > totalLength) ?
                     totalLength : blockSize;
-            long rbSizeIn = rbSizeDa * 4; // Bacause we have two int |4*2| values
+            long rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
             // for each data value which is a short |2| value
 
             long currentRead = 0;
@@ -91,11 +91,11 @@ public class SparseMatrixFile {
 
                 rbSizeDa = (blockSize > (totalLength - currentRead)) ?
                         (totalLength - currentRead) : blockSize;
-                rbSizeIn = rbSizeDa * 4;
+                rbSizeIn = rbSizeDa * 2;
                 byteBufferData = fcData.map(FileChannel.MapMode.READ_ONLY,
                         currentRead, rbSizeDa);
                 byteBufferIndex = fcIndex.map(FileChannel.MapMode.READ_ONLY,
-                        currentRead * 4, rbSizeIn);
+                        currentRead * 2, rbSizeIn);
                 byteBufferData.order(endianness);
                 byteBufferIndex.order(endianness);
 
