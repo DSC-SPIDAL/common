@@ -2,6 +2,7 @@ package edu.indiana.soic.spidal.common.sparse;
 
 import edu.indiana.soic.spidal.common.Range;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -14,9 +15,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class SparseMatrixFile {
 
@@ -85,7 +84,8 @@ public class SparseMatrixFile {
             int count = 0;
             //checks if the loop has already completed the row range
             boolean isDone = false;
-
+            Map<Integer, List<double[]>> flipValues = new HashMap<>();
+            int previousLocalRow = 0;
             outer:
             while (currentRead < totalLength) {
 
@@ -104,24 +104,85 @@ public class SparseMatrixFile {
                     //we check the last row index for that
                     if (byteBufferIndex.getInt((int) (rbSizeIn - 8)) < startRow)
                         break;
-                    
-                    int i = byteBufferIndex.getInt();
-                    int j = byteBufferIndex.getInt();
-                    if (i > endRow) break outer;
+
+                    int row = byteBufferIndex.getInt();
+                    int col = byteBufferIndex.getInt();
+                    if (row > endRow && col > endRow) break outer;
 
                     double value = byteBufferData.getInt() * INV_INT_MAX;
-                    if (i >= startRow && i <= endRow) {
-                        int localRow = i - startRow;
+                    //add it for future ref
+                    if (col >= startRow && col <= endRow) {
+                        if (flipValues.containsKey(col)) {
+                            double[] temp = {row, value};
+                            flipValues.get(col).add(temp);
+                        } else {
+                            double[] temp = {row, value};
+                            flipValues.put(col, new ArrayList<>());
+                            flipValues.get(col).add(temp);
+                        }
+                    }
+                    if (row >= startRow && row <= endRow) {
+                        int localRow = row - startRow;
+
+                        //If we are jumping couple of rows check that they are
+                        //in the flipValues and add them before moving on to the
+                        //current row
+                        while (localRow - previousLocalRow > 1) {
+                            previousLocalRow++;
+                            if (flipValues.containsKey(previousLocalRow + startRow)) {
+                                List<double[]> temp = flipValues.remove(previousLocalRow+startRow);
+                                for (double[] vals : temp) {
+                                    values.add(vals[1]);
+                                    columns.add((int)vals[0]);
+                                    if (rowPointer[previousLocalRow] == -1) {
+                                        rowPointer[previousLocalRow] = count;
+                                    }
+                                    count++;
+                                }
+                            }
+                        }
+
+                        //If there were previous values for this row we need to
+                        //add the first since they have lower column values
+                        if(flipValues.containsKey(row)){
+                            List<double[]> temp = flipValues.remove(row);
+                            for (double[] vals : temp) {
+                                values.add(vals[1]);
+                                columns.add((int)vals[0]);
+                                if (rowPointer[localRow] == -1) {
+                                    rowPointer[localRow] = count;
+                                    previousLocalRow = localRow;
+                                }
+                                count++;
+                            }
+                        }
                         values.add(value);
-                        columns.add(j);
+                        columns.add(col);
                         if (rowPointer[localRow] == -1) {
                             rowPointer[localRow] = count;
+                            previousLocalRow = localRow;
                         }
                         count++;
                     }
                 }
 
                 currentRead += rbSizeDa;
+            }
+
+            //Check if there are any trailing elements that have not been filled
+            while(previousLocalRow < rowPointer.length - 1){
+                    previousLocalRow++;
+                    if (flipValues.containsKey(previousLocalRow + startRow)) {
+                        List<double[]> temp = flipValues.remove(previousLocalRow+startRow);
+                        for (double[] vals : temp) {
+                            values.add(vals[1]);
+                            columns.add((int)vals[0]);
+                            if (rowPointer[previousLocalRow] == -1) {
+                                rowPointer[previousLocalRow] = count;
+                            }
+                            count++;
+                        }
+                    }
             }
 
             SparseMatrix sparseMatrix =
