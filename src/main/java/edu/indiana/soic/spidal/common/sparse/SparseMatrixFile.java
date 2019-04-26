@@ -86,6 +86,7 @@ public class SparseMatrixFile {
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
             int count = 0;
+            int countflips = 0;
             //checks if the loop has already completed the row range
             boolean isDone = false;
             Map<Integer, List<double[]>> flipValues = new HashMap<>();
@@ -132,6 +133,10 @@ public class SparseMatrixFile {
                             double[] temp = {row, value};
                             flipValues.put(col, new ArrayList<>());
                             flipValues.get(col).add(temp);
+                        }
+                        countflips++;
+                        if (countflips % 49999999 == 0) {
+                            System.out.println("%%%%%%%%% : " + countflips);
                         }
                     }
                     if (row >= startRow && row <= endRow) {
