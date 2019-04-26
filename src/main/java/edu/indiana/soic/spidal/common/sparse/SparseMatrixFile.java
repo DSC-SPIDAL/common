@@ -76,6 +76,12 @@ public class SparseMatrixFile {
             long currentRead = 0;
             MappedByteBuffer byteBufferIndex;
             MappedByteBuffer byteBufferData;
+            ByteBuffer outbyteBufferdata =
+                    ByteBuffer.allocate((int) rbSizeDa);
+            ByteBuffer outbyteBufferindex =
+                    ByteBuffer.allocate((int) rbSizeIn);
+            outbyteBufferdata.order(endianness);
+            outbyteBufferindex.order(endianness);
 
             List<Double> values = new ArrayList<>();
             List<Integer> columns = new ArrayList<>();
@@ -88,10 +94,16 @@ public class SparseMatrixFile {
             int previousLocalRow = 0;
             outer:
             while (currentRead < totalLength) {
+                outbyteBufferdata.clear();
+                outbyteBufferindex.clear();
 
                 rbSizeDa = (blockSize > (totalLength - currentRead)) ?
                         (totalLength - currentRead) : blockSize;
                 rbSizeIn = rbSizeDa * 2;
+
+                fcData.read(outbyteBufferdata, currentRead);
+                fcIndex.read(outbyteBufferindex, currentRead * 2);
+
                 byteBufferData = fcData.map(FileChannel.MapMode.READ_ONLY,
                         currentRead, rbSizeDa);
                 byteBufferIndex = fcIndex.map(FileChannel.MapMode.READ_ONLY,
@@ -105,11 +117,17 @@ public class SparseMatrixFile {
                     if (byteBufferIndex.getInt((int) (rbSizeIn - 8)) < startRow)
                         break;
 
+                    int row2 = outbyteBufferindex.getInt();
+                    int col2 = outbyteBufferindex.getInt();
+                    double val2 = byteBufferData.getInt() * INV_INT_MAX;
                     int row = byteBufferIndex.getInt();
                     int col = byteBufferIndex.getInt();
                     if (row > endRow && col > endRow) break outer;
 
                     double value = byteBufferData.getInt() * INV_INT_MAX;
+                    if (row != row2 || col != col2 || val2 != value) {
+                        System.out.printf("row %d : %d, cols %d : %d", row, row2, col, col2);
+                    }
                     //add it for future ref
                     if (col >= startRow && col <= endRow) {
                         if (flipValues.containsKey(col)) {
@@ -130,10 +148,10 @@ public class SparseMatrixFile {
                         while (localRow - previousLocalRow > 1) {
                             previousLocalRow++;
                             if (flipValues.containsKey(previousLocalRow + startRow)) {
-                                List<double[]> temp = flipValues.remove(previousLocalRow+startRow);
+                                List<double[]> temp = flipValues.remove(previousLocalRow + startRow);
                                 for (double[] vals : temp) {
                                     values.add(vals[1]);
-                                    columns.add((int)vals[0]);
+                                    columns.add((int) vals[0]);
                                     if (rowPointer[previousLocalRow] == -1) {
                                         rowPointer[previousLocalRow] = count;
                                     }
@@ -144,11 +162,11 @@ public class SparseMatrixFile {
 
                         //If there were previous values for this row we need to
                         //add the first since they have lower column values
-                        if(flipValues.containsKey(row)){
+                        if (flipValues.containsKey(row)) {
                             List<double[]> temp = flipValues.remove(row);
                             for (double[] vals : temp) {
                                 values.add(vals[1]);
-                                columns.add((int)vals[0]);
+                                columns.add((int) vals[0]);
                                 if (rowPointer[localRow] == -1) {
                                     rowPointer[localRow] = count;
                                     previousLocalRow = localRow;
@@ -170,19 +188,19 @@ public class SparseMatrixFile {
             }
 
             //Check if there are any trailing elements that have not been filled
-            while(previousLocalRow < rowPointer.length - 1){
-                    previousLocalRow++;
-                    if (flipValues.containsKey(previousLocalRow + startRow)) {
-                        List<double[]> temp = flipValues.remove(previousLocalRow+startRow);
-                        for (double[] vals : temp) {
-                            values.add(vals[1]);
-                            columns.add((int)vals[0]);
-                            if (rowPointer[previousLocalRow] == -1) {
-                                rowPointer[previousLocalRow] = count;
-                            }
-                            count++;
+            while (previousLocalRow < rowPointer.length - 1) {
+                previousLocalRow++;
+                if (flipValues.containsKey(previousLocalRow + startRow)) {
+                    List<double[]> temp = flipValues.remove(previousLocalRow + startRow);
+                    for (double[] vals : temp) {
+                        values.add(vals[1]);
+                        columns.add((int) vals[0]);
+                        if (rowPointer[previousLocalRow] == -1) {
+                            rowPointer[previousLocalRow] = count;
                         }
+                        count++;
                     }
+                }
             }
 
             SparseMatrix sparseMatrix =
