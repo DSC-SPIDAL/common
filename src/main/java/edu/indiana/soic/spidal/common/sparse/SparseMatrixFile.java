@@ -103,7 +103,9 @@ public class SparseMatrixFile {
 
                 fcData.read(outbyteBufferdata, currentRead);
                 fcIndex.read(outbyteBufferindex, currentRead * 2);
-
+                outbyteBufferdata.flip();
+                outbyteBufferindex.flip();
+                
                 byteBufferData = fcData.map(FileChannel.MapMode.READ_ONLY,
                         currentRead, rbSizeDa);
                 byteBufferIndex = fcIndex.map(FileChannel.MapMode.READ_ONLY,
