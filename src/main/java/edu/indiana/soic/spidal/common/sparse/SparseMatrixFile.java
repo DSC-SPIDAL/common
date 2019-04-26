@@ -105,7 +105,7 @@ public class SparseMatrixFile {
                 fcIndex.read(outbyteBufferindex, currentRead * 2);
                 outbyteBufferdata.flip();
                 outbyteBufferindex.flip();
-                
+
                 byteBufferData = fcData.map(FileChannel.MapMode.READ_ONLY,
                         currentRead, rbSizeDa);
                 byteBufferIndex = fcIndex.map(FileChannel.MapMode.READ_ONLY,
@@ -121,14 +121,14 @@ public class SparseMatrixFile {
 
                     int row2 = outbyteBufferindex.getInt();
                     int col2 = outbyteBufferindex.getInt();
-                    double val2 = byteBufferData.getInt() * INV_INT_MAX;
+                    double val2 = outbyteBufferdata.getInt() * INV_INT_MAX;
                     int row = byteBufferIndex.getInt();
                     int col = byteBufferIndex.getInt();
                     if (row > endRow && col > endRow) break outer;
 
                     double value = byteBufferData.getInt() * INV_INT_MAX;
                     if (row != row2 || col != col2 || val2 != value) {
-                        System.out.printf("row %d : %d, cols %d : %d", row, row2, col, col2);
+                        System.out.printf("row %d : %d, cols %d : %d \n", row, row2, col, col2);
                     }
                     //add it for future ref
                     if (col >= startRow && col <= endRow) {
