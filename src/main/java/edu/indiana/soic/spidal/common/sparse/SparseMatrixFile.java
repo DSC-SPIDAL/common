@@ -74,8 +74,6 @@ public class SparseMatrixFile {
             // for each data value which is a short |2| value
 
             long currentRead = 0;
-            MappedByteBuffer byteBufferIndex;
-            MappedByteBuffer byteBufferData;
             ByteBuffer outbyteBufferdata =
                     ByteBuffer.allocate((int) rbSizeDa);
             ByteBuffer outbyteBufferindex =
@@ -101,35 +99,30 @@ public class SparseMatrixFile {
                         (totalLength - currentRead) : blockSize;
                 rbSizeIn = rbSizeDa * 2;
 
+                //if the size is smaller create two new smaller buffs
+                if (rbSizeDa != outbyteBufferdata.capacity()) {
+                    System.out.println("#### Using new ByteBuffer");
+                    outbyteBufferdata = ByteBuffer.allocate((int) rbSizeDa);
+                    outbyteBufferindex = ByteBuffer.allocate((int) rbSizeIn);
+                    outbyteBufferdata.clear();
+                    outbyteBufferindex.clear();
+                }
                 fcData.read(outbyteBufferdata, currentRead);
                 fcIndex.read(outbyteBufferindex, currentRead * 2);
                 outbyteBufferdata.flip();
                 outbyteBufferindex.flip();
 
-                byteBufferData = fcData.map(FileChannel.MapMode.READ_ONLY,
-                        currentRead, rbSizeDa);
-                byteBufferIndex = fcIndex.map(FileChannel.MapMode.READ_ONLY,
-                        currentRead * 2, rbSizeIn);
-                byteBufferData.order(endianness);
-                byteBufferIndex.order(endianness);
 
-                while (byteBufferIndex.hasRemaining() && byteBufferData.hasRemaining()) {
+                while (outbyteBufferindex.hasRemaining() && outbyteBufferdata.hasRemaining()) {
                     //first check if the loaded values contains the range
                     //we check the last row index for that
-                    if (byteBufferIndex.getInt((int) (rbSizeIn - 8)) < startRow)
-                        break;
+//                    if (outbyteBufferindex.getInt((int) (rbSizeIn - 8)) < startRow)
+//                        break;
 
-                    int row2 = outbyteBufferindex.getInt();
-                    int col2 = outbyteBufferindex.getInt();
-                    double val2 = outbyteBufferdata.getInt() * INV_INT_MAX;
-                    int row = byteBufferIndex.getInt();
-                    int col = byteBufferIndex.getInt();
+                    int row = outbyteBufferindex.getInt();
+                    int col = outbyteBufferindex.getInt();
                     if (row > endRow && col > endRow) break outer;
-
-                    double value = byteBufferData.getInt() * INV_INT_MAX;
-                    if (row != row2 || col != col2 || val2 != value) {
-                        System.out.printf("row %d : %d, cols %d : %d \n", row, row2, col, col2);
-                    }
+                    double value = outbyteBufferdata.getInt() * INV_INT_MAX;
                     //add it for future ref
                     if (col >= startRow && col <= endRow) {
                         if (flipValues.containsKey(col)) {
@@ -183,6 +176,10 @@ public class SparseMatrixFile {
                             previousLocalRow = localRow;
                         }
                         count++;
+                        if (values.size() % 49999999 == 0) {
+                            System.out.println(startRow + " Too Large #########################");
+                        }
+
                     }
                 }
 
