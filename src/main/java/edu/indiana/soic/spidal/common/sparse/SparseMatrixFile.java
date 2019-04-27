@@ -206,7 +206,7 @@ public class SparseMatrixFile {
 //                    }
 //                }
 //            }
-            System.out.printf("%d,%d", startRow, countflips);
+            System.out.printf("%d,%d\n", startRow, countflips);
 
             SparseMatrix sparseMatrix =
                     new SparseMatrix(ArrayUtils.toPrimitive(values.toArray(new Double[values.size()])),
