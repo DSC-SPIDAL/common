@@ -126,64 +126,64 @@ public class SparseMatrixFile {
                     double value = outbyteBufferdata.getInt() * INV_INT_MAX;
                     //add it for future ref
                     if (col >= startRow && col <= endRow) {
-                        if (flipValues.containsKey(col)) {
-                            double[] temp = {row, value};
-                            flipValues.get(col).add(temp);
-                        } else {
-                            double[] temp = {row, value};
-                            flipValues.put(col, new ArrayList<>());
-                            flipValues.get(col).add(temp);
-                        }
+//                        if (flipValues.containsKey(col)) {
+//                            double[] temp = {row, value};
+//                            flipValues.get(col).add(temp);
+//                        } else {
+//                            double[] temp = {row, value};
+//                            flipValues.put(col, new ArrayList<>());
+//                            flipValues.get(col).add(temp);
+//                        }
                         countflips++;
-                        if (countflips % 49999999 == 0) {
-                            System.out.println("%%%%%%%%% : " + countflips);
-                        }
+//                        if (countflips % 49999999 == 0) {
+//                            System.out.println("%%%%%%%%% : " + countflips);
+//                        }
                     }
                     if (row >= startRow && row <= endRow) {
                         int localRow = row - startRow;
-
+                        countflips++;
                         //If we are jumping couple of rows check that they are
                         //in the flipValues and add them before moving on to the
                         //current row
-                        while (localRow - previousLocalRow > 1) {
-                            previousLocalRow++;
-                            if (flipValues.containsKey(previousLocalRow + startRow)) {
-                                List<double[]> temp = flipValues.remove(previousLocalRow + startRow);
-                                for (double[] vals : temp) {
-                                    values.add(vals[1]);
-                                    columns.add((int) vals[0]);
-                                    if (rowPointer[previousLocalRow] == -1) {
-                                        rowPointer[previousLocalRow] = count;
-                                    }
-                                    count++;
-                                }
-                            }
-                        }
-
-                        //If there were previous values for this row we need to
-                        //add the first since they have lower column values
-                        if (flipValues.containsKey(row)) {
-                            List<double[]> temp = flipValues.remove(row);
-                            for (double[] vals : temp) {
-                                values.add(vals[1]);
-                                columns.add((int) vals[0]);
-                                if (rowPointer[localRow] == -1) {
-                                    rowPointer[localRow] = count;
-                                    previousLocalRow = localRow;
-                                }
-                                count++;
-                            }
-                        }
-                        values.add(value);
-                        columns.add(col);
-                        if (rowPointer[localRow] == -1) {
-                            rowPointer[localRow] = count;
-                            previousLocalRow = localRow;
-                        }
+//                        while (localRow - previousLocalRow > 1) {
+//                            previousLocalRow++;
+//                            if (flipValues.containsKey(previousLocalRow + startRow)) {
+//                                List<double[]> temp = flipValues.remove(previousLocalRow + startRow);
+//                                for (double[] vals : temp) {
+//                                    values.add(vals[1]);
+//                                    columns.add((int) vals[0]);
+//                                    if (rowPointer[previousLocalRow] == -1) {
+//                                        rowPointer[previousLocalRow] = count;
+//                                    }
+//                                    count++;
+//                                }
+//                            }
+//                        }
+//
+//                        //If there were previous values for this row we need to
+//                        //add the first since they have lower column values
+//                        if (flipValues.containsKey(row)) {
+//                            List<double[]> temp = flipValues.remove(row);
+//                            for (double[] vals : temp) {
+//                                values.add(vals[1]);
+//                                columns.add((int) vals[0]);
+//                                if (rowPointer[localRow] == -1) {
+//                                    rowPointer[localRow] = count;
+//                                    previousLocalRow = localRow;
+//                                }
+//                                count++;
+//                            }
+//                        }
+//                        values.add(value);
+//                        columns.add(col);
+//                        if (rowPointer[localRow] == -1) {
+//                            rowPointer[localRow] = count;
+//                            previousLocalRow = localRow;
+//                        }
                         count++;
-                        if (values.size() % 49999999 == 0) {
-                            System.out.println(startRow + " Too Large #########################");
-                        }
+//                        if (values.size() % 49999999 == 0) {
+//                            System.out.println(startRow + " Too Large #########################");
+//                        }
 
                     }
                 }
@@ -192,20 +192,21 @@ public class SparseMatrixFile {
             }
 
             //Check if there are any trailing elements that have not been filled
-            while (previousLocalRow < rowPointer.length - 1) {
-                previousLocalRow++;
-                if (flipValues.containsKey(previousLocalRow + startRow)) {
-                    List<double[]> temp = flipValues.remove(previousLocalRow + startRow);
-                    for (double[] vals : temp) {
-                        values.add(vals[1]);
-                        columns.add((int) vals[0]);
-                        if (rowPointer[previousLocalRow] == -1) {
-                            rowPointer[previousLocalRow] = count;
-                        }
-                        count++;
-                    }
-                }
-            }
+//            while (previousLocalRow < rowPointer.length - 1) {
+//                previousLocalRow++;
+//                if (flipValues.containsKey(previousLocalRow + startRow)) {
+//                    List<double[]> temp = flipValues.remove(previousLocalRow + startRow);
+//                    for (double[] vals : temp) {
+//                        values.add(vals[1]);
+//                        columns.add((int) vals[0]);
+//                        if (rowPointer[previousLocalRow] == -1) {
+//                            rowPointer[previousLocalRow] = count;
+//                        }
+//                        count++;
+//                    }
+//                }
+//            }
+            System.out.printf("%d,%d", startRow, countflips);
 
             SparseMatrix sparseMatrix =
                     new SparseMatrix(ArrayUtils.toPrimitive(values.toArray(new Double[values.size()])),
