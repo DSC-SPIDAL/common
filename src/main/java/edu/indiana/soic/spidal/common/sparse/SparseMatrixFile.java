@@ -285,6 +285,8 @@ public class SparseMatrixFile {
                     }
                 }
             }
+            fcData.close();
+            fcIndex.close();
             System.out.printf("%d,,%d,%d,%d\n", startRow, endRow, (endRow - startRow), count);
 
             SparseMatrix sparseMatrix =
