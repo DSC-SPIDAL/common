@@ -84,7 +84,7 @@ public class SparseMatrixFile {
 
 
             //Pass 1 figure out the cols and values sizes
-            int entryCount = 0;
+            long entryCount = 0;
             int[] counts = new int[numPoints];
 
             while (currentRead < totalLengthindex) {
