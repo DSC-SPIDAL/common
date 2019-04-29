@@ -134,7 +134,7 @@ public class SparseMatrixFile {
             for (int i = rows[rank]; i < rows[rank + 1]; i++) {
                 countsPerCur += counts[i];
             }
-            System.out.println(rank + " $$$$$$$$$ " + countsPerCur);
+            System.out.println(rank + " $$$$$$$$$ " + countsPerCur + " : " + rows[rank] + " : " + rows[rank + 1]);
             currentRead = 0;
             rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
             outbyteBufferindex =
