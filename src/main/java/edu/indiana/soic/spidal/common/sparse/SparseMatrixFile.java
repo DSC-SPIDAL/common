@@ -46,7 +46,7 @@ public class SparseMatrixFile {
     public static SparseMatrix loadIntoMemory(String indicesPath,
                                               String dataPath,
                                               Range globalThreadRowRange,
-                                              int numPoints, ByteOrder endianness) {
+                                              int numPoints, ByteOrder endianness, int rank) {
         //TODO: check if we can use arrays instead of lists we need to know the length of values before hand for this
         // maybe we can do a two pass method also need to update data read code
         // so that it can handle large files ref readRowRangeInternal method
@@ -117,14 +117,31 @@ public class SparseMatrixFile {
 
             }
 
+            int[] rows = new int[225];
+            long perProc = entryCount / 224;
+            int index = 0;
+            for (int i = 1; i < rows.length; i++) {
+                long temp = 0;
+                while (index < numPoints && temp < perProc) {
+                    temp += counts[index++];
+                }
+                rows[i] = index;
+            }
+            rows[224] = numPoints;
+
+            int countsPerCur = 0;
+            for (int i = rows[rank]; i < rows[rank+1]; i++) {
+                countsPerCur += counts[i];
+            }
+
             currentRead = 0;
             outbyteBufferindex =
                     ByteBuffer.allocate((int) rbSizeIn);
             outbyteBufferindex.order(endianness);
             rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
 
-            double[] values = new double[entryCount];
-            int[] columns = new int[entryCount];
+            double[] values = new double[countsPerCur];
+            int[] columns = new int[countsPerCur];
             int entryIndex = 0;
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
