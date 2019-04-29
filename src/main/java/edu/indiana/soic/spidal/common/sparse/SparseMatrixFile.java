@@ -120,6 +120,8 @@ public class SparseMatrixFile {
 
             int[] rows = new int[225];
             long perProc = entryCount / 224;
+            System.out.println("entry Count " + entryCount + " : " + perProc);
+
             int index = 0;
             for (int i = 1; i < rows.length; i++) {
                 long temp = 0;
