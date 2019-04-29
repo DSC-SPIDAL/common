@@ -68,6 +68,7 @@ public class SparseMatrixFile {
                     .newByteChannel(Paths.get(dataPath),
                             StandardOpenOption.READ);
             long totalLength = fcData.size();
+            long totalLengthindex = fcIndex.size();
             long rbSizeDa = (blockSize > totalLength) ?
                     totalLength : blockSize;
             long rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
@@ -86,11 +87,11 @@ public class SparseMatrixFile {
             int entryCount = 0;
             int[] counts = new int[numPoints];
 
-            while (currentRead < totalLength) {
+            while (currentRead < totalLengthindex) {
                 outbyteBufferindex.clear();
 
-                rbSizeIn = (blockSize * 2 > (totalLength - currentRead)) ?
-                        (totalLength - currentRead) : blockSize * 2;
+                rbSizeIn = (blockSize * 2 > (totalLengthindex - currentRead)) ?
+                        (totalLengthindex - currentRead) : blockSize * 2;
 
                 //if the size is smaller create two new smaller buffs
                 if (rbSizeIn != outbyteBufferindex.capacity()) {
