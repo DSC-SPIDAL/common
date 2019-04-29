@@ -89,8 +89,8 @@ public class SparseMatrixFile {
             while (currentRead < totalLength) {
                 outbyteBufferindex.clear();
 
-                rbSizeIn = (blockSize > (totalLength - currentRead)) ?
-                        (totalLength - currentRead) : blockSize;
+                rbSizeIn = (blockSize * 2 > (totalLength - currentRead)) ?
+                        (totalLength - currentRead) : blockSize * 2;
 
                 //if the size is smaller create two new smaller buffs
                 if (rbSizeIn != outbyteBufferindex.capacity()) {
@@ -135,10 +135,10 @@ public class SparseMatrixFile {
             }
 
             currentRead = 0;
+            rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
             outbyteBufferindex =
                     ByteBuffer.allocate((int) rbSizeIn);
             outbyteBufferindex.order(endianness);
-            rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
 
             double[] values = new double[countsPerCur];
             int[] columns = new int[countsPerCur];
