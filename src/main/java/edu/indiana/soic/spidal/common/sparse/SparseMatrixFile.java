@@ -130,19 +130,19 @@ public class SparseMatrixFile {
             }
             rows[224] = numPoints;
 
-            int countsPerCur = 0;
-            for (int i = rows[rank]; i < rows[rank+1]; i++) {
+            long countsPerCur = 0;
+            for (int i = rows[rank]; i < rows[rank + 1]; i++) {
                 countsPerCur += counts[i];
             }
-
+            System.out.println(rank + " $$$$$$$$$ " + countsPerCur);
             currentRead = 0;
             rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
             outbyteBufferindex =
                     ByteBuffer.allocate((int) rbSizeIn);
             outbyteBufferindex.order(endianness);
 
-            double[] values = new double[countsPerCur];
-            int[] columns = new int[countsPerCur];
+            double[] values = new double[(int) countsPerCur];
+            int[] columns = new int[(int) countsPerCur];
             int entryIndex = 0;
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
