@@ -1,6 +1,7 @@
 package edu.indiana.soic.spidal.common.sparse;
 
 public class SparseMatrixUtils {
+    private static final double INV_SHORT_MAX = 1.0 / Short.MAX_VALUE;
 
     /**
      * Simple sparse to matrix multiply
@@ -13,7 +14,7 @@ public class SparseMatrixUtils {
      */
     public static void sparseMatrixMatrixMultiply(SparseMatrix sparseMatrix,
                                                   double[] B, int N, int dims, double[] out) {
-        double[] values = sparseMatrix.getValues();
+        short[] values = sparseMatrix.getValues();
         double[] mutiples = new double[values.length];
         int[] columns = sparseMatrix.getColumns();
         int[] rowPointers = sparseMatrix.getRowPointers();
@@ -36,7 +37,7 @@ public class SparseMatrixUtils {
 
                 double tempSum = 0;
                 for (int colC = 0; colC < colCount; colC++) {
-                    tempSum += values[trackIndex] * mutiples[trackIndex];
+                    tempSum += (values[trackIndex] * INV_SHORT_MAX) * mutiples[trackIndex];
                     trackIndex++;
                 }
                 out[bOffSet + localRow] = tempSum;
@@ -52,7 +53,7 @@ public class SparseMatrixUtils {
             throw new IllegalStateException("Diagonal array needs to be intialized");
         }
 
-        double[] values = sparseMatrix.getValues();
+        short[] values = sparseMatrix.getValues();
         double[] mutiples = new double[values.length];
         int[] columns = sparseMatrix.getColumns();
         int[] rowPointers = sparseMatrix.getRowPointers();
@@ -77,7 +78,7 @@ public class SparseMatrixUtils {
 
                     //The diagonal values are taken from the diagonal entry
                     if (globalRow != columns[trackIndex]) {
-                        tempSum += values[trackIndex] * mutiples[trackIndex];
+                        tempSum += (values[trackIndex] * INV_SHORT_MAX) * mutiples[trackIndex];
                     }
                     trackIndex++;
                 }
@@ -92,7 +93,7 @@ public class SparseMatrixUtils {
 
     public static void sparseMatrixMatrixMultiplyWithDiagonal(SparseMatrixWeightWrap sparseMatrixWeightWrap,
                                                               double[] B, double[] diagonal, int N, int dims, double[] out, int globalRowOffset) {
-        double[] values = sparseMatrixWeightWrap.getDistance().getValues();
+        short[] values = sparseMatrixWeightWrap.getDistance().getValues();
         double[] mutiples = new double[values.length];
         int[] columns = sparseMatrixWeightWrap.getDistance().getColumns();
         int[] rowPointers = sparseMatrixWeightWrap.getDistance().getRowPointers();

@@ -156,7 +156,7 @@ public class SparseMatrixFile {
 //                    ByteBuffer.allocate((int) rbSizeIn);
 //            outbyteBufferindex.order(endianness);
 
-            double[] values = new double[(int) countsPerCur];
+            short[] values = new short[(int) countsPerCur];
             int[] columns = new int[(int) countsPerCur];
             int entryIndex = 0;
             int[] rowPointer = new int[length];
@@ -225,7 +225,7 @@ public class SparseMatrixFile {
                             if (flipValues.containsKey(previousLocalRow + startRow)) {
                                 List<int[]> temp = flipValues.remove(previousLocalRow + startRow);
                                 for (int[] vals : temp) {
-                                    values[entryIndex] = ((double) vals[1]) * INV_INT_MAX;
+                                    values[entryIndex] = (short)((vals[1] * INV_INT_MAX) * Short.MAX_VALUE);
                                     columns[entryIndex] = vals[0];
                                     entryIndex++;
                                     if (rowPointer[previousLocalRow] == -1) {
@@ -241,7 +241,7 @@ public class SparseMatrixFile {
                         if (flipValues.containsKey(row)) {
                             List<int[]> temp = flipValues.remove(row);
                             for (int[] vals : temp) {
-                                values[entryIndex] = ((double) vals[1]) * INV_INT_MAX;
+                                values[entryIndex] = (short)((vals[1] * INV_INT_MAX) * Short.MAX_VALUE);
                                 columns[entryIndex] = vals[0];
                                 entryIndex++;
                                 if (rowPointer[localRow] == -1) {
@@ -251,7 +251,7 @@ public class SparseMatrixFile {
                                 count++;
                             }
                         }
-                        values[entryIndex] = ((double) value) * INV_INT_MAX;
+                        values[entryIndex] = (short)((value * INV_INT_MAX) * Short.MAX_VALUE);
                         columns[entryIndex] = col;
                         entryIndex++;
                         if (rowPointer[localRow] == -1) {
@@ -275,7 +275,7 @@ public class SparseMatrixFile {
                 if (flipValues.containsKey(previousLocalRow + startRow)) {
                     List<int[]> temp = flipValues.remove(previousLocalRow + startRow);
                     for (int[] vals : temp) {
-                        values[entryIndex] = ((double) vals[1]) * INV_INT_MAX;
+                        values[entryIndex] = (short)((vals[1] * INV_INT_MAX) * Short.MAX_VALUE);
                         columns[entryIndex] = vals[0];
                         entryIndex++;
                         if (rowPointer[previousLocalRow] == -1) {

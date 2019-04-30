@@ -5,7 +5,7 @@ package edu.indiana.soic.spidal.common.sparse;
  * [Values], [Column indices] and [Row pointers]
  */
 public class SparseMatrix {
-    private final double[] values;
+    private final short[] values;
     private final int[] columns;
     private final int[] rowPointers;
     /**
@@ -15,7 +15,7 @@ public class SparseMatrix {
 
     private boolean hasDiagonal;
 
-    public SparseMatrix(double[] values, int[] columns, int[] rowPointers) {
+    public SparseMatrix(short[] values, int[] columns, int[] rowPointers) {
         this.rowPointers = rowPointers;
         this.values = values;
         this.columns = columns;
@@ -24,7 +24,7 @@ public class SparseMatrix {
 
     }
 
-    public SparseMatrix(double[] values, int[] columns, int[] rowPointers,
+    public SparseMatrix(short[] values, int[] columns, int[] rowPointers,
                         double[] diagonal) {
         this.rowPointers = rowPointers;
         this.values = values;
@@ -35,7 +35,7 @@ public class SparseMatrix {
     }
 
     public SparseMatrix(int values, int columns, int rowPointers) {
-        this.values = new double[values];
+        this.values = new short[values];
         this.columns = new int[columns];
         this.rowPointers = new int[rowPointers];
         this.diagonal = null;
@@ -60,14 +60,14 @@ public class SparseMatrix {
         if(rowPointers != diagonals) throw new IllegalStateException("The " +
                 "diagonal must be of size rows");
 
-        this.values = new double[values];
+        this.values = new short[values];
         this.columns = new int[columns];
         this.rowPointers = new int[rowPointers];
         this.diagonal = new double[diagonals];
         this.hasDiagonal = true;
     }
 
-    public double[] getValues() {
+    public short[] getValues() {
         return values;
     }
 
