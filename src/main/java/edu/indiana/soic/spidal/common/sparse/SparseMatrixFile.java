@@ -298,7 +298,7 @@ public class SparseMatrixFile {
                 }
 
                 currentRead += rbSizeDa;
-                if (gcCount > 200 && gcCount % 100 == 0) System.gc();
+                if (gcCount > 200 && gcCount % 50 == 0) System.gc();
             }
 
             //Check if there are any trailing elements that have not been filled
