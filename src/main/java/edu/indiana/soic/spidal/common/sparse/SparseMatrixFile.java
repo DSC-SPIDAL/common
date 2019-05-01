@@ -4,6 +4,7 @@ import edu.indiana.soic.spidal.common.Range;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.sound.midi.Soundbank;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -227,7 +228,7 @@ public class SparseMatrixFile {
                         if (firstRow) {
                             if (localRow != 0) {
                                 //check the flipped values to fill this in
-                                System.out.println("^^^^^^^^^ got missing first row" + row);
+                                System.out.println(rank + " ^^^^^^^^^ got missing first row" + row);
                                 int templocalRow = 0;
                                 while (templocalRow < localRow) {
                                     if (flipValues.containsKey(templocalRow + startRow)) {
@@ -241,8 +242,9 @@ public class SparseMatrixFile {
                                             }
                                             count++;
                                         }
-                                        templocalRow++;
                                     }
+                                    templocalRow++;
+
                                 }
                             }
 
@@ -264,6 +266,8 @@ public class SparseMatrixFile {
                                     }
                                     count++;
                                 }
+                            }else{
+                                System.out.println(rank + " 5555 " + previousLocalRow + " value not found");
                             }
                         }
 
