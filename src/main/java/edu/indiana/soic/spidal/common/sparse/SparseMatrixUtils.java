@@ -15,7 +15,7 @@ public class SparseMatrixUtils {
     public static void sparseMatrixMatrixMultiply(SparseMatrix sparseMatrix,
                                                   double[] B, int N, int dims, double[] out) {
         short[] values = sparseMatrix.getValues();
-        double[] mutiples = new double[values.length];
+        //double[] mutiples = new double[values.length];
         int[] columns = sparseMatrix.getColumns();
         int[] rowPointers = sparseMatrix.getRowPointers();
         int bOffSet = 0;
@@ -23,10 +23,10 @@ public class SparseMatrixUtils {
         for (int dimension = 0; dimension < dims; dimension++) {
             bOffSet = N * dimension;
             // fill the multiples
-            for (int i = 0; i < mutiples.length; i++) {
-                int colIndex = columns[i];
-                mutiples[i] = B[bOffSet + colIndex];
-            }
+//            for (int i = 0; i < mutiples.length; i++) {
+//                int colIndex = columns[i];
+//                mutiples[i] = B[bOffSet + colIndex];
+//            }
 
             int trackIndex = 0;
             for (int localRow = 0; localRow < rowPointers.length; localRow++) {
@@ -37,7 +37,8 @@ public class SparseMatrixUtils {
 
                 double tempSum = 0;
                 for (int colC = 0; colC < colCount; colC++) {
-                    tempSum += (values[trackIndex] * INV_SHORT_MAX) * mutiples[trackIndex];
+                   // tempSum += (values[trackIndex] * INV_SHORT_MAX) * mutiples[trackIndex];
+                    tempSum += (values[trackIndex] * INV_SHORT_MAX) * B[bOffSet + columns[trackIndex]];
                     trackIndex++;
                 }
                 out[bOffSet + localRow] = tempSum;
@@ -54,17 +55,17 @@ public class SparseMatrixUtils {
         }
 
         short[] values = sparseMatrix.getValues();
-        double[] mutiples = new double[values.length];
+        //double[] mutiples = new double[values.length];
         int[] columns = sparseMatrix.getColumns();
         int[] rowPointers = sparseMatrix.getRowPointers();
         double[] diagonal = sparseMatrix.getDiagonal();
 
         for (int dimension = 0; dimension < dims; dimension++) {
             // fill the multiples
-            for (int i = 0; i < mutiples.length; i++) {
-                int colIndex = columns[i];
-                mutiples[i] = B[colIndex * dims + dimension];
-            }
+//            for (int i = 0; i < mutiples.length; i++) {
+//                int colIndex = columns[i];
+//                mutiples[i] = B[colIndex * dims + dimension];
+//            }
 
             int trackIndex = 0;
             for (int localRow = 0; localRow < rowPointers.length; localRow++) {
@@ -78,7 +79,7 @@ public class SparseMatrixUtils {
 
                     //The diagonal values are taken from the diagonal entry
                     if (globalRow != columns[trackIndex]) {
-                        tempSum += (values[trackIndex] * INV_SHORT_MAX) * mutiples[trackIndex];
+                        tempSum += (values[trackIndex] * INV_SHORT_MAX) * B[columns[trackIndex] * dims + dimension];
                     }
                     trackIndex++;
                 }
@@ -94,16 +95,16 @@ public class SparseMatrixUtils {
     public static void sparseMatrixMatrixMultiplyWithDiagonal(SparseMatrixWeightWrap sparseMatrixWeightWrap,
                                                               double[] B, double[] diagonal, int N, int dims, double[] out, int globalRowOffset) {
         short[] values = sparseMatrixWeightWrap.getDistance().getValues();
-        double[] mutiples = new double[values.length];
+        //double[] mutiples = new double[values.length];
         int[] columns = sparseMatrixWeightWrap.getDistance().getColumns();
         int[] rowPointers = sparseMatrixWeightWrap.getDistance().getRowPointers();
 
         for (int dimension = 0; dimension < dims; dimension++) {
             // fill the multiples
-            for (int i = 0; i < mutiples.length; i++) {
-                int colIndex = columns[i];
-                mutiples[i] = B[colIndex * dims + dimension];
-            }
+//            for (int i = 0; i < mutiples.length; i++) {
+//                int colIndex = columns[i];
+//                mutiples[i] = B[colIndex * dims + dimension];
+//            }
 
             int trackIndex = 0;
             for (int localRow = 0; localRow < rowPointers.length; localRow++) {
@@ -117,7 +118,8 @@ public class SparseMatrixUtils {
 
                     //The diagonal values are taken from the diagonal entry
                     if (globalRow != columns[trackIndex]) {
-                        tempSum += -(1.0) * mutiples[trackIndex];
+                       // tempSum += -(1.0) * mutiples[trackIndex];
+                        tempSum += -(1.0) * B[columns[trackIndex] * dims + dimension];
                     }
                     trackIndex++;
                 }
