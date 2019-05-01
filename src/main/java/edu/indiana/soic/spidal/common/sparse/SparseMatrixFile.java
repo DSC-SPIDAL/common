@@ -246,6 +246,8 @@ public class SparseMatrixFile {
                                             }
                                             count++;
                                         }
+                                    }else {
+                                        System.out.println(rank + " vvvvvvvvv " + previousLocalRow + " value not found");
                                     }
                                     templocalRow++;
 
@@ -271,7 +273,7 @@ public class SparseMatrixFile {
                                     count++;
                                 }
                             } else {
-                                System.out.println(rank + " 5555 " + previousLocalRow + " value not found");
+                                System.out.println(rank + " uuuuuuuuuu " + previousLocalRow + " value not found");
                             }
                         }
 
@@ -289,7 +291,10 @@ public class SparseMatrixFile {
                                 }
                                 count++;
                             }
+                        }else {
+                            System.out.println(rank + " ggggggggggg " + previousLocalRow + " value not found");
                         }
+
                         values[entryIndex] = (short) ((value * INV_INT_MAX) * Short.MAX_VALUE);
                         columns[entryIndex] = col;
                         entryIndex++;
