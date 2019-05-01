@@ -227,9 +227,8 @@ public class SparseMatrixFile {
                     if (row >= startRow && row <= endRow) {
                         int localRow = row - startRow;
                         if (firstRow) {
-                            if (rank == 220 || rank == 222) {
-                                System.out.printf("rank : %d, localRow : %d, row : %d, startRow : %d\n", rank, localRow, row, startRow);
-                            }
+                            System.out.printf("rank : %d, localRow : %d, row : %d, startRow : %d\n", rank, localRow, row, startRow);
+
                             if (localRow != 0) {
                                 //check the flipped values to fill this in
                                 System.out.println(rank + " ^^^^^^^^^ got missing first row" + row);
