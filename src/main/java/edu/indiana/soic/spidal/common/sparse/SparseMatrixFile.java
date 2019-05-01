@@ -209,13 +209,6 @@ public class SparseMatrixFile {
                     if (row > endRow && col > endRow) break outer;
                     value = outbyteBufferdata.getInt();
 
-                    if(row == 14510048 || col == 14510048){
-                        System.out.printf("xxxxxxxrow : %d, col : %d count %d", row, col, count);
-                    }
-
-                    if(row == 14626394 || col == 14626394){
-                        System.out.printf("xxxxxxxrow : %d, col : %d count %d", row, col, count);
-                    }
                     //add it for future ref
                     if (col >= startRow && col <= endRow) {
                         if (flipValues.containsKey(col)) {
@@ -234,6 +227,9 @@ public class SparseMatrixFile {
                     if (row >= startRow && row <= endRow) {
                         int localRow = row - startRow;
                         if (firstRow) {
+                            if (rank == 220 || rank == 222) {
+                                System.out.printf("rank : %d, localRow : %d, row : %d, startRow : %d\n", rank, localRow, row, startRow);
+                            }
                             if (localRow != 0) {
                                 //check the flipped values to fill this in
                                 System.out.println(rank + " ^^^^^^^^^ got missing first row" + row);
@@ -274,7 +270,7 @@ public class SparseMatrixFile {
                                     }
                                     count++;
                                 }
-                            }else{
+                            } else {
                                 System.out.println(rank + " 5555 " + previousLocalRow + " value not found");
                             }
                         }
