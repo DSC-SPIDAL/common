@@ -208,6 +208,14 @@ public class SparseMatrixFile {
                     col = outbyteBufferindex.getInt();
                     if (row > endRow && col > endRow) break outer;
                     value = outbyteBufferdata.getInt();
+
+                    if(row == 14510048 || col == 14510048){
+                        System.out.printf("xxxxxxxrow : %d, col : %d count %d", row, col, count);
+                    }
+
+                    if(row == 14626394 || col == 14626394){
+                        System.out.printf("xxxxxxxrow : %d, col : %d count %d", row, col, count);
+                    }
                     //add it for future ref
                     if (col >= startRow && col <= endRow) {
                         if (flipValues.containsKey(col)) {
