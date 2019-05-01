@@ -186,9 +186,11 @@ public class SparseMatrixFile {
 
                 //if the size is smaller create two new smaller buffs
                 if (rbSizeDa != outbyteBufferdata.capacity()) {
-                    System.out.println("#### Using new ByteBuffer");
+                    System.out.println(rank + " #### Using new ByteBuffer");
                     outbyteBufferdata = ByteBuffer.allocate((int) rbSizeDa);
                     outbyteBufferindex = ByteBuffer.allocate((int) rbSizeIn);
+                    outbyteBufferdata.order(endianness);
+                    outbyteBufferindex.order(endianness);
                     outbyteBufferdata.clear();
                     outbyteBufferindex.clear();
                 }
