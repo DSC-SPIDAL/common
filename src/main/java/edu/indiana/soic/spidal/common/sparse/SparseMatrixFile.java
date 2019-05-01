@@ -150,7 +150,6 @@ public class SparseMatrixFile {
 //            for (int i = rows[rank]; i < rows[rank + 1]; i++) {
 //                countsPerCur += counts[i];
 //            }
-            System.out.println(rank + " $$$$$$$$$ " + countsPerCur);
 //            currentRead = 0;
 //            rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
 //            outbyteBufferindex =
@@ -186,7 +185,6 @@ public class SparseMatrixFile {
 
                 //if the size is smaller create two new smaller buffs
                 if (rbSizeDa != outbyteBufferdata.capacity()) {
-                    System.out.println(rank + " #### Using new ByteBuffer");
                     outbyteBufferdata = ByteBuffer.allocate((int) rbSizeDa);
                     outbyteBufferindex = ByteBuffer.allocate((int) rbSizeIn);
                     outbyteBufferdata.order(endianness);
@@ -229,11 +227,8 @@ public class SparseMatrixFile {
                     if (row >= startRow && row <= endRow) {
                         int localRow = row - startRow;
                         if (firstRow) {
-                            System.out.printf("rank : %d, localRow : %d, row : %d, startRow : %d\n", rank, localRow, row, startRow);
-
                             if (localRow != 0) {
                                 //check the flipped values to fill this in
-                                System.out.println(rank + " ^^^^^^^^^ got missing first row" + row);
                                 int templocalRow = 0;
                                 while (templocalRow < localRow) {
                                     if (flipValues.containsKey(templocalRow + startRow)) {
@@ -274,7 +269,7 @@ public class SparseMatrixFile {
                                     count++;
                                 }
                             } else {
-                                System.out.println(rank + " uuuuuuuuuu " + previousLocalRow + " value not found");
+                                System.out.println(rank + " uuuuuuuuuu " + previousLocalRow + " : " + localRow + " value not found" + previousLocalRow + startRow);
                             }
                         }
 
@@ -292,9 +287,6 @@ public class SparseMatrixFile {
                                 }
                                 count++;
                             }
-                        } else {
-                            if (rank == 218 && localRow == 26442)
-                                System.out.println(rank + " ggggggggggg " + previousLocalRow + " value not found");
                         }
 
                         values[entryIndex] = (short) ((value * INV_INT_MAX) * Short.MAX_VALUE);
@@ -306,7 +298,7 @@ public class SparseMatrixFile {
                         }
                         count++;
                         if (entryIndex % 49999999 == 0) {
-                            System.out.println(startRow + " Too Large #########################");
+                            System.out.println(startRow + ".");
                         }
 
                     }
@@ -335,8 +327,6 @@ public class SparseMatrixFile {
             fcData.close();
             fcIndex.close();
             System.gc();
-            System.out.printf("%d,,%d,%d,%d\n", startRow, endRow, (endRow - startRow), count);
-
             SparseMatrix sparseMatrix =
                     new SparseMatrix(values, columns, rowPointer);
             return sparseMatrix;
