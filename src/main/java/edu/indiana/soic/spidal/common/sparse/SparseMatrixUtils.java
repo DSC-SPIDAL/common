@@ -92,6 +92,54 @@ public class SparseMatrixUtils {
         }
     }
 
+    public static void sparseMatrixMatrixMultiplyWithDiagonal(SparseMatrix sparseMatrix,
+                                                              double[] B, int N, int dims, double[] out, int globalRowOffset, boolean isDouble) {
+        if (!sparseMatrix.isHasDiagonal()) {
+            throw new IllegalStateException("Diagonal array needs to be intialized");
+        }
+        if(!isDouble){
+            sparseMatrixMatrixMultiplyWithDiagonal(sparseMatrix, B, N, dims, out, globalRowOffset);
+            return;
+        }
+
+        double[] values = sparseMatrix.getValuesDouble();
+        //double[] mutiples = new double[values.length];
+        int[] columns = sparseMatrix.getColumns();
+        int[] rowPointers = sparseMatrix.getRowPointers();
+        double[] diagonal = sparseMatrix.getDiagonal();
+
+        for (int dimension = 0; dimension < dims; dimension++) {
+            // fill the multiples
+//            for (int i = 0; i < mutiples.length; i++) {
+//                int colIndex = columns[i];
+//                mutiples[i] = B[colIndex * dims + dimension];
+//            }
+
+            int trackIndex = 0;
+            for (int localRow = 0; localRow < rowPointers.length; localRow++) {
+                int rowPointer = rowPointers[localRow];
+                int colCount = (localRow == rowPointers.length - 1) ?
+                        values.length - rowPointer
+                        : rowPointers[localRow + 1] - rowPointer;
+                int globalRow = localRow + globalRowOffset;
+                double tempSum = 0;
+                for (int colC = 0; colC < colCount; colC++) {
+
+                    //The diagonal values are taken from the diagonal entry
+                    if (globalRow != columns[trackIndex]) {
+                        tempSum += values[trackIndex] * B[columns[trackIndex] * dims + dimension];
+                    }
+                    trackIndex++;
+                }
+                //calc for diagonal
+                tempSum += diagonal[localRow] * B[globalRow * dims + dimension];
+                out[localRow * dims + dimension] = tempSum;
+
+            }
+
+        }
+    }
+
     public static void sparseMatrixMatrixMultiplyWithDiagonal(SparseMatrixWeightWrap sparseMatrixWeightWrap,
                                                               double[] B, double[] diagonal, int N, int dims, double[] out, int globalRowOffset) {
         short[] values = sparseMatrixWeightWrap.getDistance().getValues();
