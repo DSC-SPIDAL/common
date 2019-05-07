@@ -122,6 +122,9 @@ public class SparseMatrixFile {
                 while (outbyteBufferindex.hasRemaining()) {
                     row = outbyteBufferindex.getInt();
                     col = outbyteBufferindex.getInt();
+                    if(row == 11232 && col == 29377){
+                        System.out.println(rank + " got to this ");
+                    }
                     counts[row]++;
                     entryCount++;
                     if (row != col) {
