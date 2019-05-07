@@ -58,6 +58,8 @@ public class SparseMatrixFile {
         if (startRow < 0 || startRow > endRow || startRow > numPoints) {
             throw new RuntimeException("Illegal row range");
         }
+        int row = 0, col = 0, value;
+
         try {
             SparseMatrixFile smf = new SparseMatrixFile();
             smf.indicesFile = new File(indicesPath);
@@ -170,7 +172,6 @@ public class SparseMatrixFile {
             boolean isDone = false;
             Map<Integer, List<int[]>> flipValues = new HashMap<>();
             int previousLocalRow = 0;
-            int row, col, value;
             int[] temp;
             int gcCount = 1;
 
@@ -334,8 +335,7 @@ public class SparseMatrixFile {
                     new SparseMatrix(values, columns, rowPointer);
             return sparseMatrix;
         } catch (IOException e) {
-            System.out.println("Error rank " + rank);
-            e.printStackTrace();
+            System.out.println(row + " " + col + " " + e.getMessage());
         }
         return null;
     }
