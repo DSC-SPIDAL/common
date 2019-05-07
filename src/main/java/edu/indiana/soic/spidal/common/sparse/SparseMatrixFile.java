@@ -132,8 +132,8 @@ public class SparseMatrixFile {
 
             }
 
-            int[] rows = new int[225];
-            long perProc = entryCount / 224;
+            int[] rows = new int[17];
+            long perProc = entryCount / 16;
             System.out.println("entry Count " + entryCount + " : " + perProc);
 
             int index = 0;
@@ -144,13 +144,15 @@ public class SparseMatrixFile {
                 }
                 rows[i] = index;
             }
-            rows[224] = numPoints;
+            rows[16] = numPoints;
 
             //long countsPerCur = perRank_sizes[rank];
             long countsPerCur = 0;
             for (int i = rows[rank]; i < rows[rank + 1]; i++) {
                 countsPerCur += counts[i];
             }
+            System.out.println("Rank " + rank + " : " + countsPerCur);
+
             currentRead = 0;
             rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
             outbyteBufferindex =
