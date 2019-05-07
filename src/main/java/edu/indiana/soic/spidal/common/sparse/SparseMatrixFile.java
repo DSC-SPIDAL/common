@@ -122,7 +122,7 @@ public class SparseMatrixFile {
                 while (outbyteBufferindex.hasRemaining()) {
                     row = outbyteBufferindex.getInt();
                     col = outbyteBufferindex.getInt();
-                    if(row == 11232){
+                    if (row == 11232) {
                         debug++;
                     }
                     counts[row]++;
@@ -136,7 +136,7 @@ public class SparseMatrixFile {
                 currentRead += rbSizeIn;
 
             }
-            System.out.println("rank " +rank + " " + debug);
+            System.out.println("rank " + rank + " " + debug);
             int[] rows = new int[13];
             long perProc = entryCount / 12;
             //System.out.println("entry Count " + entryCount + " : " + perProc);
@@ -153,6 +153,11 @@ public class SparseMatrixFile {
 
             //long countsPerCur = perRank_sizes[rank];
             long countsPerCur = 0;
+            long countsPerCurtotal = 0;
+            for (int i = 0; i < rows.length; i++) {
+                countsPerCurtotal += counts[i];
+            }
+            System.out.println("Rank " + rank + "total " + countsPerCurtotal);
             for (int i = rows[rank]; i < rows[rank + 1]; i++) {
                 countsPerCur += counts[i];
             }
@@ -339,7 +344,7 @@ public class SparseMatrixFile {
             return sparseMatrix;
         } catch (IOException e) {
             System.out.println(row + " " + col + " " + e.getMessage());
-        }catch (ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println(row + " " + col + " " + e.getMessage());
         }
         return null;
