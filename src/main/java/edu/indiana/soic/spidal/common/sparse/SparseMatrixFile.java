@@ -154,7 +154,7 @@ public class SparseMatrixFile {
             //long countsPerCur = perRank_sizes[rank];
             long countsPerCur = 0;
             long countsPerCurtotal = 0;
-            for (int i = 0; i < rows.length; i++) {
+            for (int i = 0; i < counts.length; i++) {
                 countsPerCurtotal += counts[i];
             }
             System.out.println("Rank " + rank + "total " + countsPerCurtotal);
