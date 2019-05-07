@@ -137,8 +137,8 @@ public class SparseMatrixFile {
 
             }
             System.out.println("rank " +rank + " " + debug);
-            int[] rows = new int[17];
-            long perProc = entryCount / 16;
+            int[] rows = new int[13];
+            long perProc = entryCount / 12;
             //System.out.println("entry Count " + entryCount + " : " + perProc);
 
             int index = 0;
@@ -149,7 +149,7 @@ public class SparseMatrixFile {
                 }
                 rows[i] = index;
             }
-            rows[16] = numPoints;
+            rows[12] = numPoints;
 
             //long countsPerCur = perRank_sizes[rank];
             long countsPerCur = 0;
