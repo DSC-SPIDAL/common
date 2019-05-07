@@ -336,6 +336,8 @@ public class SparseMatrixFile {
             return sparseMatrix;
         } catch (IOException e) {
             System.out.println(row + " " + col + " " + e.getMessage());
+        }catch (ArrayIndexOutOfBoundsException e){
+            System.out.println(row + " " + col + " " + e.getMessage());
         }
         return null;
     }
