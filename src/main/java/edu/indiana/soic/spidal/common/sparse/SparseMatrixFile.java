@@ -335,7 +335,7 @@ public class SparseMatrixFile {
                     new SparseMatrix(values, columns, rowPointer);
             return sparseMatrix;
         } catch (IOException e) {
-            System.out.println(row + " " + col + " " + e.getMessage());
+            System.out.println(row + " " + col + " " );
         }
         return null;
     }
