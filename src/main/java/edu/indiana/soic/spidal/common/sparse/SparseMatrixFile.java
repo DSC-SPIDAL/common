@@ -16,6 +16,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.sql.SQLOutput;
 import java.util.*;
 
 public class SparseMatrixFile {
@@ -137,8 +138,8 @@ public class SparseMatrixFile {
 
             }
             System.out.println("rank " + rank + " " + debug);
-            int[] rows = new int[13];
-            long perProc = entryCount / 12;
+            int[] rows = new int[17];
+            long perProc = entryCount / 16;
             //System.out.println("entry Count " + entryCount + " : " + perProc);
 
             int index = 0;
@@ -149,7 +150,7 @@ public class SparseMatrixFile {
                 }
                 rows[i] = index;
             }
-            rows[12] = numPoints;
+            rows[16] = numPoints;
 
             //long countsPerCur = perRank_sizes[rank];
             long countsPerCur = 0;
@@ -319,7 +320,7 @@ public class SparseMatrixFile {
                 currentRead += rbSizeDa;
                 if (gcCount > 200 && gcCount % 50 == 0) System.gc();
             }
-
+            System.out.println("Rank " + rank + " local count : " + entryIndex );
             //Check if there are any trailing elements that have not been filled
             while (previousLocalRow < rowPointer.length - 1) {
                 previousLocalRow++;
