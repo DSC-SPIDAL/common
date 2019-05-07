@@ -120,8 +120,8 @@ public class SparseMatrixFile {
                 outbyteBufferindex.flip();
 
                 while (outbyteBufferindex.hasRemaining()) {
-                    int row = outbyteBufferindex.getInt();
-                    int col = outbyteBufferindex.getInt();
+                    row = outbyteBufferindex.getInt();
+                    col = outbyteBufferindex.getInt();
                     counts[row]++;
                     entryCount++;
                     if (row != col) {
