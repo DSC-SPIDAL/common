@@ -320,7 +320,6 @@ public class SparseMatrixFile {
                 currentRead += rbSizeDa;
                 if (gcCount > 200 && gcCount % 50 == 0) System.gc();
             }
-            System.out.println("Rank " + rank + " local count : " + entryIndex );
             //Check if there are any trailing elements that have not been filled
             while (previousLocalRow < rowPointer.length - 1) {
                 previousLocalRow++;
@@ -337,6 +336,9 @@ public class SparseMatrixFile {
                     }
                 }
             }
+
+            System.out.println("Rank " + rank + " local count : " + entryIndex );
+
             fcData.close();
             fcIndex.close();
             System.gc();
