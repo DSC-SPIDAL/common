@@ -102,7 +102,7 @@ public class SparseMatrixFile {
             //Pass 1 figure out the cols and values sizes
             long entryCount = 0;
             int[] counts = new int[numPoints];
-
+            int debug = 0;
             while (currentRead < totalLengthindex) {
                 outbyteBufferindex.clear();
 
@@ -122,8 +122,8 @@ public class SparseMatrixFile {
                 while (outbyteBufferindex.hasRemaining()) {
                     row = outbyteBufferindex.getInt();
                     col = outbyteBufferindex.getInt();
-                    if(row == 11232 && col == 29377){
-                        System.out.println(rank + " got to this ");
+                    if(row == 11232){
+                        debug++;
                     }
                     counts[row]++;
                     entryCount++;
@@ -136,7 +136,7 @@ public class SparseMatrixFile {
                 currentRead += rbSizeIn;
 
             }
-
+            System.out.println("rank " +rank + " " + debug);
             int[] rows = new int[17];
             long perProc = entryCount / 16;
             //System.out.println("entry Count " + entryCount + " : " + perProc);
