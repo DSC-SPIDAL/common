@@ -112,7 +112,7 @@ public class SparseMatrixFile {
 
                 //if the size is smaller create two new smaller buffs
                 if (rbSizeIn != outbyteBufferindex.capacity()) {
-                    System.out.println("#### Using new ByteBuffer");
+//                    System.out.println("#### Using new ByteBuffer");
                     outbyteBufferindex = ByteBuffer.allocate((int) rbSizeIn);
                     outbyteBufferindex.order(endianness);
                     outbyteBufferindex.clear();
@@ -137,7 +137,7 @@ public class SparseMatrixFile {
                 currentRead += rbSizeIn;
 
             }
-            System.out.println("rank " + rank + " " + debug);
+//            System.out.println("rank " + rank + " " + debug);
             int[] rows = new int[17];
             long perProc = entryCount / 16;
             //System.out.println("entry Count " + entryCount + " : " + perProc);
@@ -154,14 +154,16 @@ public class SparseMatrixFile {
 
             //long countsPerCur = perRank_sizes[rank];
             long countsPerCur = 0;
-            long countsPerCurtotal = 0;
-            for (int i = 0; i < counts.length; i++) {
-                countsPerCurtotal += counts[i];
+            long countsPerCur2 = 0;
+            for (int i = startRow; i <= endRow; i++) {
+                countsPerCur2 += counts[i];
+
             }
-            System.out.println("Rank " + rank + "total " + countsPerCurtotal);
-            for (int i = rows[rank]; i < rows[rank + 1]; i++) {
+            System.out.println("Rank " + rank + " cc " + countsPerCur2);
+           for (int i = rows[rank]; i < rows[rank + 1]; i++) {
                 countsPerCur += counts[i];
             }
+
             System.out.println("Rank ddd" + rank + " : " + countsPerCur + " srow " + startRow + " erow " + endRow);
 
             currentRead = 0;
