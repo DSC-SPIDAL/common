@@ -86,94 +86,86 @@ public class SparseMatrixFile {
             outbyteBufferdata.order(endianness);
             outbyteBufferindex.order(endianness);
 
-//            long[] perRank_sizes = {242640710, 242649406, 242645493, 242640623, 242667570, 242644329, 242640516, 242642490, 242639799, 242708821, 242658652, 242649311, 242737227, 242645092, 242673549,
-//                    242675358, 242643137, 242642760, 242641885, 242645658, 242642497, 242765256, 242662894, 242642940, 242683072, 242656422, 242648278, 242781930, 242649160, 242682061, 242660954, 242651201,
-//                    242642483, 242647595, 242648893, 242672475, 242639770, 242641334, 242642090, 242642377, 242648390, 242730862, 242642371, 242691567, 242641863, 242644863, 242640724, 242641551, 242663978,
-//                    242641753, 242642423, 242649750, 242643928, 242642450, 242651540, 242649351, 242641401, 242642457, 242665124, 242650915, 242645351, 242678770, 242675208, 242641857, 242643353, 242640066,
-//                    242643387, 242642080, 242644071, 242640446, 242642454, 242662807, 242657101, 242676515, 242750285, 242655254, 242640389, 242641134, 242640690, 242641913, 242649499, 242640749, 242640046,
-//                    242655470, 242647992, 242641789, 242674707, 242640094, 242691971, 242645122, 242641133, 242644099, 242639759, 242640798, 242673139, 242641055, 242651647, 242663789, 242660391, 242640320,
-//                    242644580, 242640082, 242749703, 242720196, 242641065, 242655864, 242651618, 242646981, 242639939, 242646788, 242643079, 242640925, 242640726, 242642715, 242650926, 242640240, 242687150,
-//                    242642429, 242695227, 242650448, 242645095, 242654866, 242707091, 242640225, 242639937, 242645156, 242668376, 242640902, 242640218, 242642559, 242642624, 242676289, 242736988, 242721600,
-//                    242643256, 242649233, 242641497, 242660607, 242642135, 242640068, 242641492, 242640128, 242653966, 242642247, 242639834, 242764764, 242641720, 242644750, 242644134, 242719384, 242642279,
-//                    242651421, 242654357, 242642293, 242731581, 242710793, 242643875, 242643074, 242640034, 242645412, 242698593, 242642583, 242641214, 242661919, 242640784, 242642956, 242670960, 242667842,
-//                    242642938, 242642508, 242640468, 242691235, 242640769, 242650762, 242642717, 242642069, 242703293, 242640795, 242641947, 242643881, 242645486, 242640996, 242640467, 242641156, 242640516,
-//                    242656257, 242640367, 242640428, 242642592, 242641405, 242651836, 242657820, 242640490, 242648797, 242646342, 242657828, 242646719, 242664372, 242682352, 242685743, 242713539, 242642606,
-//                    242641557, 242662118, 242651532, 242688073, 242640534, 242640255, 242651769, 242674749, 242640124, 242662869, 242644432, 242640981, 242641930, 242643374, 242689143, 242670948, 242643350,
-//                    242684225, 242651257, 242639826, 242660979, 238865592};
+            long[] perRank_sizes = {242640710, 242649406, 242645493, 242640623, 242667570, 242644329, 242640516, 242642490, 242639799, 242708821, 242658652, 242649311, 242737227, 242645092, 242673549,
+                    242675358, 242643137, 242642760, 242641885, 242645658, 242642497, 242765256, 242662894, 242642940, 242683072, 242656422, 242648278, 242781930, 242649160, 242682061, 242660954, 242651201,
+                    242642483, 242647595, 242648893, 242672475, 242639770, 242641334, 242642090, 242642377, 242648390, 242730862, 242642371, 242691567, 242641863, 242644863, 242640724, 242641551, 242663978,
+                    242641753, 242642423, 242649750, 242643928, 242642450, 242651540, 242649351, 242641401, 242642457, 242665124, 242650915, 242645351, 242678770, 242675208, 242641857, 242643353, 242640066,
+                    242643387, 242642080, 242644071, 242640446, 242642454, 242662807, 242657101, 242676515, 242750285, 242655254, 242640389, 242641134, 242640690, 242641913, 242649499, 242640749, 242640046,
+                    242655470, 242647992, 242641789, 242674707, 242640094, 242691971, 242645122, 242641133, 242644099, 242639759, 242640798, 242673139, 242641055, 242651647, 242663789, 242660391, 242640320,
+                    242644580, 242640082, 242749703, 242720196, 242641065, 242655864, 242651618, 242646981, 242639939, 242646788, 242643079, 242640925, 242640726, 242642715, 242650926, 242640240, 242687150,
+                    242642429, 242695227, 242650448, 242645095, 242654866, 242707091, 242640225, 242639937, 242645156, 242668376, 242640902, 242640218, 242642559, 242642624, 242676289, 242736988, 242721600,
+                    242643256, 242649233, 242641497, 242660607, 242642135, 242640068, 242641492, 242640128, 242653966, 242642247, 242639834, 242764764, 242641720, 242644750, 242644134, 242719384, 242642279,
+                    242651421, 242654357, 242642293, 242731581, 242710793, 242643875, 242643074, 242640034, 242645412, 242698593, 242642583, 242641214, 242661919, 242640784, 242642956, 242670960, 242667842,
+                    242642938, 242642508, 242640468, 242691235, 242640769, 242650762, 242642717, 242642069, 242703293, 242640795, 242641947, 242643881, 242645486, 242640996, 242640467, 242641156, 242640516,
+                    242656257, 242640367, 242640428, 242642592, 242641405, 242651836, 242657820, 242640490, 242648797, 242646342, 242657828, 242646719, 242664372, 242682352, 242685743, 242713539, 242642606,
+                    242641557, 242662118, 242651532, 242688073, 242640534, 242640255, 242651769, 242674749, 242640124, 242662869, 242644432, 242640981, 242641930, 242643374, 242689143, 242670948, 242643350,
+                    242684225, 242651257, 242639826, 242660979, 238865592};
             //Pass 1 figure out the cols and values sizes
-            long entryCount = 0;
-            int[] counts = new int[numPoints];
-            int debug = 0;
-            while (currentRead < totalLengthindex) {
-                outbyteBufferindex.clear();
-
-                rbSizeIn = (blockSize * 2 > (totalLengthindex - currentRead)) ?
-                        (totalLengthindex - currentRead) : blockSize * 2;
-
-                //if the size is smaller create two new smaller buffs
-                if (rbSizeIn != outbyteBufferindex.capacity()) {
-//                    System.out.println("#### Using new ByteBuffer");
-                    outbyteBufferindex = ByteBuffer.allocate((int) rbSizeIn);
-                    outbyteBufferindex.order(endianness);
-                    outbyteBufferindex.clear();
-                }
-                fcIndex.read(outbyteBufferindex, currentRead);
-                outbyteBufferindex.flip();
-
-                while (outbyteBufferindex.hasRemaining()) {
-                    row = outbyteBufferindex.getInt();
-                    col = outbyteBufferindex.getInt();
-                    if (row == 11232) {
-                        debug++;
-                    }
-                    counts[row]++;
-                    entryCount++;
-                    if (row != col) {
-                        entryCount++;
-                        counts[col]++;
-                    }
-                }
-
-                currentRead += rbSizeIn;
-
-            }
+//            long entryCount = 0;
+//            int[] counts = new int[numPoints];
+//            int debug = 0;
+//            while (currentRead < totalLengthindex) {
+//                outbyteBufferindex.clear();
+//
+//                rbSizeIn = (blockSize * 2 > (totalLengthindex - currentRead)) ?
+//                        (totalLengthindex - currentRead) : blockSize * 2;
+//
+//                //if the size is smaller create two new smaller buffs
+//                if (rbSizeIn != outbyteBufferindex.capacity()) {
+////                    System.out.println("#### Using new ByteBuffer");
+//                    outbyteBufferindex = ByteBuffer.allocate((int) rbSizeIn);
+//                    outbyteBufferindex.order(endianness);
+//                    outbyteBufferindex.clear();
+//                }
+//                fcIndex.read(outbyteBufferindex, currentRead);
+//                outbyteBufferindex.flip();
+//
+//                while (outbyteBufferindex.hasRemaining()) {
+//                    row = outbyteBufferindex.getInt();
+//                    col = outbyteBufferindex.getInt();
+//                    if (row == 11232) {
+//                        debug++;
+//                    }
+//                    counts[row]++;
+//                    entryCount++;
+//                    if (row != col) {
+//                        entryCount++;
+//                        counts[col]++;
+//                    }
+//                }
+//
+//                currentRead += rbSizeIn;
+//
+//            }
 //            System.out.println("rank " + rank + " " + debug);
-            int[] rows = new int[17];
-            long perProc = entryCount / 16;
+//            int[] rows = new int[17];
+//            long perProc = entryCount / 16;
             //System.out.println("entry Count " + entryCount + " : " + perProc);
 
-            int index = 0;
-            for (int i = 1; i < rows.length; i++) {
-                long temp = 0;
-                while (index < numPoints && temp < perProc) {
-                    temp += counts[index++];
-                }
-                rows[i] = index;
-            }
-            rows[16] = numPoints;
-
-            //long countsPerCur = perRank_sizes[rank];
-            long countsPerCur = 0;
-            long countsPerCur2 = 0;
-            for (int i = startRow; i <= endRow; i++) {
-                countsPerCur2 += counts[i];
-
-            }
-            System.out.println("Rank " + rank + " cc " + countsPerCur2);
-//           for (int i = rows[rank]; i < rows[rank + 1]; i++) {
-//                countsPerCur += counts[i];
+//            int index = 0;
+//            for (int i = 1; i < rows.length; i++) {
+//                long temp = 0;
+//                while (index < numPoints && temp < perProc) {
+//                    temp += counts[index++];
+//                }
+//                rows[i] = index;
 //            }
+//            rows[16] = numPoints;
+
+            long countsPerCur = perRank_sizes[rank];
+//            long countsPerCur = 0;
+//            for (int i = startRow; i <= endRow; i++) {
+//                countsPerCur += counts[i];
 //
-//            System.out.println("Rank ddd" + rank + " : " + countsPerCur + " srow " + startRow + " erow " + endRow);
+//            }
+//            currentRead = 0;
+//            rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
+//            outbyteBufferindex =
+//                    ByteBuffer.allocate((int) rbSizeIn);
+//            outbyteBufferindex.order(endianness);
 
-            currentRead = 0;
-            rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
-            outbyteBufferindex =
-                    ByteBuffer.allocate((int) rbSizeIn);
-            outbyteBufferindex.order(endianness);
-
-            short[] values = new short[(int) countsPerCur2];
-            int[] columns = new int[(int) countsPerCur2];
+            short[] values = new short[(int) countsPerCur];
+            int[] columns = new int[(int) countsPerCur];
             int entryIndex = 0;
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
@@ -185,8 +177,6 @@ public class SparseMatrixFile {
             int previousLocalRow = 0;
             int[] temp;
             int gcCount = 1;
-
-            int debugcount = 0;
 
             //Used to check if the first local row is not skipped
             boolean firstRow = true;
@@ -228,7 +218,6 @@ public class SparseMatrixFile {
 
                     //add it for future ref
                     if (col >= startRow && col <= endRow) {
-                        debugcount++;
                         if (flipValues.containsKey(col)) {
                             temp = new int[]{row, value};
                             flipValues.get(col).add(temp);
@@ -243,7 +232,6 @@ public class SparseMatrixFile {
                         }
                     }
                     if (row >= startRow && row <= endRow) {
-                        debugcount++;
                         int localRow = row - startRow;
                         if (firstRow) {
                             if (localRow != 0) {
@@ -261,8 +249,6 @@ public class SparseMatrixFile {
                                             }
                                             count++;
                                         }
-                                    } else {
-                                        System.out.println(rank + " vvvvvvvvv " + previousLocalRow + " value not found");
                                     }
                                     templocalRow++;
 
@@ -287,8 +273,6 @@ public class SparseMatrixFile {
                                     }
                                     count++;
                                 }
-                            } else {
-                                System.out.println(rank + " uuuuuuuuuu " + previousLocalRow + " : " + localRow + " value not found" + previousLocalRow + startRow);
                             }
                         }
 
@@ -343,8 +327,6 @@ public class SparseMatrixFile {
                     }
                 }
             }
-
-            System.out.println("Rank " + rank + " local count : " + entryIndex + " debug count " + debugcount);
 
             fcData.close();
             fcIndex.close();
