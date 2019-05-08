@@ -221,7 +221,7 @@ public class SparseMatrixFile {
 
                     row = outbyteBufferindex.getInt();
                     col = outbyteBufferindex.getInt();
-                    if (row > endRow && col > endRow) break outer;
+                    //if (row > endRow && col > endRow) break outer;
                     value = outbyteBufferdata.getInt();
 
                     //add it for future ref
