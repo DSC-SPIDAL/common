@@ -170,8 +170,8 @@ public class SparseMatrixFile {
                     ByteBuffer.allocate((int) rbSizeIn);
             outbyteBufferindex.order(endianness);
 
-            short[] values = new short[(int) countsPerCur];
-            int[] columns = new int[(int) countsPerCur];
+            short[] values = new short[(int) 20195107*3];
+            int[] columns = new int[(int) 20195107*3];
             int entryIndex = 0;
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
