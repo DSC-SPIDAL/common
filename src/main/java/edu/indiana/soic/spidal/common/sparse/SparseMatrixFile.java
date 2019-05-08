@@ -160,11 +160,11 @@ public class SparseMatrixFile {
 
             }
             System.out.println("Rank " + rank + " cc " + countsPerCur2);
-           for (int i = rows[rank]; i < rows[rank + 1]; i++) {
-                countsPerCur += counts[i];
-            }
-
-            System.out.println("Rank ddd" + rank + " : " + countsPerCur + " srow " + startRow + " erow " + endRow);
+//           for (int i = rows[rank]; i < rows[rank + 1]; i++) {
+//                countsPerCur += counts[i];
+//            }
+//
+//            System.out.println("Rank ddd" + rank + " : " + countsPerCur + " srow " + startRow + " erow " + endRow);
 
             currentRead = 0;
             rbSizeIn = rbSizeDa * 2; // Bacause we have two int |4*2| values
@@ -172,8 +172,8 @@ public class SparseMatrixFile {
                     ByteBuffer.allocate((int) rbSizeIn);
             outbyteBufferindex.order(endianness);
 
-            short[] values = new short[(int) 20195107*3];
-            int[] columns = new int[(int) 20195107*3];
+            short[] values = new short[(int) countsPerCur2];
+            int[] columns = new int[(int) countsPerCur2];
             int entryIndex = 0;
             int[] rowPointer = new int[length];
             Arrays.fill(rowPointer, -1);
@@ -256,7 +256,6 @@ public class SparseMatrixFile {
                                             values[entryIndex] = (short) ((vals[1] * INV_INT_MAX) * Short.MAX_VALUE);
                                             columns[entryIndex] = vals[0];
                                             entryIndex++;
-                                            System.out.println("111111111111");
                                             if (rowPointer[templocalRow] == -1) {
                                                 rowPointer[templocalRow] = count;
                                             }
@@ -283,7 +282,6 @@ public class SparseMatrixFile {
                                     values[entryIndex] = (short) ((vals[1] * INV_INT_MAX) * Short.MAX_VALUE);
                                     columns[entryIndex] = vals[0];
                                     entryIndex++;
-                                    System.out.println("22222222");
                                     if (rowPointer[previousLocalRow] == -1) {
                                         rowPointer[previousLocalRow] = count;
                                     }
@@ -337,7 +335,6 @@ public class SparseMatrixFile {
                         values[entryIndex] = (short) ((vals[1] * INV_INT_MAX) * Short.MAX_VALUE);
                         columns[entryIndex] = vals[0];
                         entryIndex++;
-                        System.out.println("3333333333");
 
                         if (rowPointer[previousLocalRow] == -1) {
                             rowPointer[previousLocalRow] = count;
