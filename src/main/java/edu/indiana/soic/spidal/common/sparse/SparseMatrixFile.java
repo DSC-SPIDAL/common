@@ -184,6 +184,8 @@ public class SparseMatrixFile {
             int[] temp;
             int gcCount = 1;
 
+            int debugcount = 0;
+
             //Used to check if the first local row is not skipped
             boolean firstRow = true;
             outer:
@@ -224,6 +226,7 @@ public class SparseMatrixFile {
 
                     //add it for future ref
                     if (col >= startRow && col <= endRow) {
+                        debugcount++;
                         if (flipValues.containsKey(col)) {
                             temp = new int[]{row, value};
                             flipValues.get(col).add(temp);
@@ -238,6 +241,7 @@ public class SparseMatrixFile {
                         }
                     }
                     if (row >= startRow && row <= endRow) {
+                        debugcount++;
                         int localRow = row - startRow;
                         if (firstRow) {
                             if (localRow != 0) {
@@ -341,7 +345,7 @@ public class SparseMatrixFile {
                 }
             }
 
-            System.out.println("Rank " + rank + " local count : " + entryIndex );
+            System.out.println("Rank " + rank + " local count : " + entryIndex + " debug count " + debugcount);
 
             fcData.close();
             fcIndex.close();
